@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TigerGraph Sentinel | Agentic Fraud Investigation & Next-Best Action</title>
+  <meta name="description" content="AI Agent for Autonomous Fraud Investigation and Next-Best Action powered by TigerGraph Knowledge Graphs, GraphRAG, and FinCEN SAR generation.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="dark-theme">
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-left">
+      <div class="brand-logo">
+        <svg class="tigergraph-icon" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" stroke="url(#tg-grad)" stroke-width="2.5" />
+          <path d="M10 16L14 20L22 12" stroke="url(#tg-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="tg-grad" x1="0" y1="0" x2="32" y2="32">
+              <stop stop-color="#FF6B00"/>
+              <stop offset="1" stop-color="#FF9E00"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="brand-text">
+          <span class="brand-title">TigerGraph <span class="brand-accent">Sentinel</span></span>
+          <span class="brand-subtitle">Agentic Fraud Investigation & Next-Best Action (HHGOA)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-metrics">
+      <div class="metric-pill">
+        <span class="dot active"></span>
+        <span class="pill-label">Graph Mode:</span>
+        <span class="pill-value" id="graphModeLabel">TigerGraph Engine</span>
+      </div>
+      <div class="metric-pill">
+        <span class="pill-label">Case Memory:</span>
+        <span class="pill-value" id="memoryCountLabel">5,565 Precedents</span>
+      </div>
+      <div class="metric-pill">
+        <span class="pill-label">Exam Queue:</span>
+        <span class="pill-value" id="examCasesLabel">20 Cases</span>
+      </div>
+      <div class="metric-pill">
+        <span class="pill-label">Compliance:</span>
+        <span class="pill-value text-emerald">FinCEN / BSA</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Workspace -->
+  <div class="app-layout">
+    <!-- Left Sidebar: Case Queue -->
+    <aside class="sidebar-cases">
+      <div class="sidebar-header">
+        <div class="sidebar-title-row">
+          <h3>Exam Benchmark Cases</h3>
+          <span class="badge-count" id="caseBadgeCount">20</span>
+        </div>
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="caseSearchInput" placeholder="Filter by case, trigger, card...">
+        </div>
+        <div class="filter-chips">
+          <button class="chip active" data-filter="all">All (20)</button>
+          <button class="chip" data-filter="fraud">Fraud</button>
+          <button class="chip" data-filter="legitimate">Legitimate</button>
+          <button class="chip" data-filter="sar">SAR Filed</button>
+        </div>
+      </div>
+
+      <div class="case-list-scroll" id="caseListContainer">
+        <!-- Rendered dynamically -->
+        <div class="loading-spinner">Loading benchmark cases...</div>
+      </div>
+    </aside>
+
+    <!-- Main Investigation Center -->
+    <main class="main-content">
+      <!-- Case Banner & Header Overview -->
+      <section class="case-header-card" id="caseHeaderCard">
+        <div class="header-top-row">
+          <div class="case-id-group">
+            <span class="case-badge" id="currentCaseIdBadge">HHG-001</span>
+            <span class="status-badge" id="currentStatusBadge">CLOSED FRAUD</span>
+            <span class="pattern-badge" id="currentPatternBadge">Card Testing</span>
+          </div>
+          <div class="case-header-actions">
+            <button class="btn btn-secondary" id="btnReinvestigate">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/></svg>
+              Re-run Investigation
+            </button>
+            <button class="btn btn-primary" id="btnExportJson">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Export JSON Answer
+            </button>
+          </div>
+        </div>
+
+        <div class="trigger-banner" id="triggerBanner">
+          <div class="trigger-type-label" id="triggerTypeLabel">RISK SCORE TRIGGER</div>
+          <div class="trigger-text-content" id="triggerTextContent">
+            Real-time model scored transaction 3514030 ($77.07, in billing region 444.0) at 0.61. Review and decide.
+          </div>
+        </div>
+
+        <!-- KPI Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="kpi-card">
+            <div class="kpi-title">Initial Model Risk Score</div>
+            <div class="kpi-value text-amber" id="kpiRiskScore">0.61</div>
+            <div class="kpi-sub">Bank Real-time Detector</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Agent Calibrated Probability</div>
+            <div class="kpi-value text-orange" id="kpiFraudProb">86%</div>
+            <div class="kpi-sub">GraphRAG Evidence Grounded</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Total Financial Exposure</div>
+            <div class="kpi-value text-cyan" id="kpiExposure">$77.07</div>
+            <div class="kpi-sub" id="kpiTxnCount">1 affected transaction</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-title">Connected Graph Ring Size</div>
+            <div class="kpi-value text-purple" id="kpiRingSize">0 Cards</div>
+            <div class="kpi-sub" id="kpiDeviceName">SAMSUNG SM-G892A</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center Dual Panels: Graph Visualizer + Evidence Timeline -->
+      <div class="workspace-grid">
+        <!-- Interactive Graph Canvas -->
+        <div class="panel-card graph-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              <h3>TigerGraph Subgraph Explorer</h3>
+            </div>
+            <div class="graph-legend">
+              <span class="legend-item"><span class="legend-dot customer"></span>Customer</span>
+              <span class="legend-item"><span class="legend-dot card"></span>Card</span>
+              <span class="legend-item"><span class="legend-dot txn"></span>Txn</span>
+              <span class="legend-item"><span class="legend-dot device"></span>Device</span>
+              <span class="legend-item"><span class="legend-dot ring"></span>Syndicate</span>
+            </div>
+          </div>
+          <div class="graph-canvas-container">
+            <canvas id="graphCanvas"></canvas>
+            <div class="graph-controls">
+              <button class="btn-icon" id="btnZoomIn" title="Zoom In">+</button>
+              <button class="btn-icon" id="btnZoomOut" title="Zoom Out">-</button>
+              <button class="btn-icon" id="btnResetGraph" title="Reset View">&#x21bb;</button>
+            </div>
+          </div>
+          <div class="graph-footer-notes" id="graphFooterNotes">
+            Tip: Click and drag nodes to inspect connections. Hover over nodes to see IDs and attributes.
+          </div>
+        </div>
+
+        <!-- Evidence & Graph Claims Timeline -->
+        <div class="panel-card evidence-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <h3>Forensic Evidence & Claims</h3>
+            </div>
+            <span class="evidence-count" id="evidenceCountBadge">3 Findings</span>
+          </div>
+          <div class="evidence-list" id="evidenceListContainer">
+            <!-- Dynamic evidence items -->
+          </div>
+
+          <!-- Historical Precedents (Case Memory) -->
+          <div class="memory-section">
+            <div class="memory-header">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              <h4>Retrieved Case Memory Precedents</h4>
+            </div>
+            <div class="memory-chips" id="memoryChipsContainer">
+              <!-- Dynamically populated chips -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Grid: Next-Best Action Progression + SAR Regulatory Filing -->
+      <div class="actions-sar-grid">
+        <!-- Next Best Actions Card -->
+        <div class="panel-card nba-card">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <h3>Policy-Governed Next-Best Actions (NBA)</h3>
+            </div>
+            <span class="approval-legend-note">Routes: <span class="tag tag-auto">auto</span> <span class="tag tag-l1">L1 Team Lead</span> <span class="tag tag-l2">L2 Manager</span></span>
+          </div>
+
+          <!-- Step Progression: Initial vs Evidence vs Final -->
+          <div class="nba-steps-container">
+            <!-- Stage 1: Initial Recommendation -->
+            <div class="nba-stage">
+              <div class="stage-title">
+                <span class="step-num">1</span>
+                <span>Initial Recommendation (Before Evidence)</span>
+              </div>
+              <div class="action-items-list" id="initialActionsList">
+                <!-- Dynamically rendered -->
+              </div>
+            </div>
+
+            <!-- Stage 2: Controlled Evidence Simulation Sandbox -->
+            <div class="nba-stage evidence-sim-stage">
+              <div class="stage-title">
+                <span class="step-num">2</span>
+                <span>Controlled Evidence Gathering & Simulation</span>
+              </div>
+              <div class="sim-sandbox-box">
+                <div class="sim-prompt-row">
+                  <span class="sim-label">Action Taken:</span>
+                  <span class="sim-action-type" id="simActionType">Customer Validation Inquiry</span>
+                </div>
+                <div class="sim-response-text" id="simResponseText">
+                  "Cardholder contacted via phone; explicitly denied authorizing the transaction and confirmed card remains in possession."
+                </div>
+                <div class="sim-interactive-controls">
+                  <span class="sim-toggle-label">Test Different Customer Reply:</span>
+                  <div class="sim-btn-group">
+                    <button class="btn btn-sm btn-outline active" id="btnSimDeny">Simulate Denial (Fraud)</button>
+                    <button class="btn btn-sm btn-outline" id="btnSimConfirm">Simulate Confirmation (Legit)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stage 3: Final Recommendation -->
+            <div class="nba-stage">
+              <div class="stage-title">
+                <span class="step-num">3</span>
+                <span>Final Defensible Action (After Evidence)</span>
+              </div>
+              <div class="action-items-list" id="finalActionsList">
+                <!-- Dynamically rendered -->
+              </div>
+            </div>
+          </div>
+
+          <!-- What Changed Banner -->
+          <div class="what-changed-box" id="whatChangedBox">
+            <strong>What Changed:</strong> <span id="whatChangedText">Cardholder denial elevated fraud probability to 0.86, confirming the block and case creation.</span>
+          </div>
+        </div>
+
+        <!-- FinCEN SAR Regulatory Filing Card -->
+        <div class="panel-card sar-card">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <h3>FinCEN Suspicious Activity Report (SAR)</h3>
+            </div>
+            <span class="sar-status-pill" id="sarStatusPill">REQUIRED (L2 APPROVAL)</span>
+          </div>
+
+          <div class="sar-body" id="sarBodyContainer">
+            <div class="sar-meta-row">
+              <div class="sar-meta-item">
+                <span class="sar-label">Filing Status:</span>
+                <span class="sar-val" id="sarFilingStatus">Mandatory Regulatory Filing</span>
+              </div>
+              <div class="sar-meta-item">
+                <span class="sar-label">Filing Reason:</span>
+                <span class="sar-val" id="sarFilingReason">Policy R2 / R6 / Exposure Threshold</span>
+              </div>
+              <div class="sar-meta-item">
+                <span class="sar-label">Total Amount:</span>
+                <span class="sar-val text-cyan" id="sarTotalAmount">$77.07 USD</span>
+              </div>
+              <div class="sar-meta-item">
+                <span class="sar-label">Activity Dates:</span>
+                <span class="sar-val" id="sarActivityDates">2016-12-05 to 2016-12-05</span>
+              </div>
+            </div>
+
+            <div class="sar-subjects-row">
+              <span class="sar-label">Subjects Identified:</span>
+              <div class="subject-chips" id="sarSubjectChips">
+                <!-- Chips -->
+              </div>
+            </div>
+
+            <div class="sar-narrative-container">
+              <div class="narrative-header">
+                <span class="sar-label">Regulatory Narrative (FinCEN Guidance Format):</span>
+                <button class="btn btn-sm btn-ghost" id="btnCopyNarrative">Copy Text</button>
+              </div>
+              <div class="narrative-content" id="sarNarrativeContent">
+                <!-- Narrative text -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Execution Audit Trail & Graph Writeback Footer -->
+      <footer class="audit-footer">
+        <div class="audit-item">
+          <span class="audit-label">TigerGraph Writeback:</span>
+          <span class="audit-val text-emerald" id="auditGraphWritten">&#x2714; Vertex Ingested (TG-CASE-HHG-001)</span>
+        </div>
+        <div class="audit-item">
+          <span class="audit-label">Tool Invocations:</span>
+          <span class="audit-val" id="auditToolCalls">6 GSQL calls</span>
+        </div>
+        <div class="audit-item">
+          <span class="audit-label">Token Consumption:</span>
+          <span class="audit-val" id="auditTokens">5,250 tokens</span>
+        </div>
+        <div class="audit-item">
+          <span class="audit-label">Execution Latency:</span>
+          <span class="audit-val" id="auditLatency">0.34s</span>
+        </div>
+        <div class="audit-item">
+          <span class="audit-label">Termination Rule:</span>
+          <span class="audit-val text-muted" id="auditStopReason">Defensible action confirmed under Policy R2.</span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

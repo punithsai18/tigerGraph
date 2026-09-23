@@ -1,0 +1,20 @@
+# Data files (large datasets from IEEE-CIS)
+data/transactions.csv
+data/*.part
+data/*.zip
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Environment & IDE
+.env
+.venv/
+venv/
+.idea/
+.vscode/

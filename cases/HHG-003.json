@@ -1,0 +1,94 @@
+{
+  "case_id": "HHG-003",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.87,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3530164"
+    ],
+    "first_suspicious_txn_id": "3530164",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 49.0,
+    "evidence": [
+      {
+        "claim": "Transaction 3530164 ($49.00, in_person) flagged by customer_report with model score 0.50.",
+        "source": "graph",
+        "ref": "query:card_window(card_id=C08623-K2)",
+        "entity_ids": [
+          "3530164"
+        ]
+      },
+      {
+        "claim": "Customer validation inquiry: Customer confirmed they remain in possession of physical card and explicitly denied authorizing the online transaction.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C08623"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-2817",
+      "CC-2935",
+      "CC-3327"
+    ],
+    "summary": "Confirmed card not present fraud on card C08623-K2 totaling $49.00 USD. Customer explicitly denied transaction. Card blocked and internal case opened under Policy R2.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-003"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 2,
+      "assumed_response": "Customer confirmed they remain in possession of physical card and explicitly denied authorizing the online transaction."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Customer dispute received, opening internal case record"
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Re-confirm transaction details, card possession status, and travel history"
+      },
+      {
+        "action": "DECLINE_TRANSACTION",
+        "route": "L1",
+        "reason": "R5: Testing sequence observed or high probability, decline pending authorization"
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "R3: Customer confirmed transaction as legitimate"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: Cardholder confirmed activity; alert closed as false alarm"
+      }
+    ],
+    "what_changed": "Customer confirmed the transaction. Initial verification or monitoring actions updated to ALLOW_TRANSACTION and CLOSE_NO_FRAUD."
+  },
+  "sar": {
+    "file": false,
+    "reason": "Activity does not meet policy criteria for regulatory reporting (exposure <= $1,000 and isolated to single card/device without syndicate indicators).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Customer denial confirmed compromise; device linkage evaluated; defensible action determined under Policy R2.",
+  "tool_calls": 6,
+  "tokens": 4900,
+  "latency_s": 0.15
+}

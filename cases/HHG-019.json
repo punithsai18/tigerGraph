@@ -1,0 +1,112 @@
+{
+  "case_id": "HHG-019",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.93,
+    "pattern": "undocumented",
+    "pattern_description": "Multi-card syndicate sharing unusual device profile 'Windows | other | chrome 61.0 | 1280x720' across 6 cardholders in a narrow time window.",
+    "affected_txn_ids": [
+      "3503878"
+    ],
+    "first_suspicious_txn_id": "3503878",
+    "connected_card_ids": [
+      "C01104-K1",
+      "C07987-K1",
+      "C06224-K1",
+      "C11309-K1",
+      "C01983-K1"
+    ],
+    "connected_device_profiles": [
+      "Windows | other | chrome 61.0 | 1280x720"
+    ],
+    "exposure_usd": 99.92,
+    "evidence": [
+      {
+        "claim": "Transaction 3503878 ($99.92, online) flagged by risk_score with model score 0.90.",
+        "source": "graph",
+        "ref": "query:card_window(card_id=C07987-K2)",
+        "entity_ids": [
+          "3503878"
+        ]
+      },
+      {
+        "claim": "Originating device profile 'Windows | other | chrome 61.0 | 1280x720' marked New. Linked to 5 additional card(s) in graph.",
+        "source": "graph",
+        "ref": "query:device_neighbors(profile_id=Windows | other | ch...)",
+        "entity_ids": [
+          "C01104-K1",
+          "C07987-K1",
+          "C06224-K1"
+        ]
+      },
+      {
+        "claim": "Customer validation inquiry: Cardholder contacted via phone; confirmed they never initiated the transaction.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C07987"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-2087",
+      "CC-2860",
+      "CC-5026"
+    ],
+    "summary": "Syndicate device ring identified: card C07987-K2 shares device profile 'Windows | other | chrome 61.0 | 1280x720' with multiple cards (C01104-K1, C07987-K1). Card blocked, connected cards placed under heightened monitoring, and regulatory report filed under Policy R6/R9.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-019"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 3,
+      "assumed_response": "Cardholder contacted via phone; confirmed they never initiated the transaction."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R6: Shared device or coordinated activity identified across cards"
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Validate cardholder authorization for suspicious activity"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: Shared device profile links to other cards; monitor syndicate members"
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "R3: Customer confirmed transaction as legitimate"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: Cardholder confirmed activity; alert closed as false alarm"
+      }
+    ],
+    "what_changed": "Customer confirmed the transaction. Initial verification or monitoring actions updated to ALLOW_TRANSACTION and CLOSE_NO_FRAUD."
+  },
+  "sar": {
+    "file": false,
+    "reason": "Activity does not meet policy criteria for regulatory reporting (exposure <= $1,000 and isolated to single card/device without syndicate indicators).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Customer denial confirmed compromise; device linkage evaluated; defensible action determined under Policy R2.",
+  "tool_calls": 6,
+  "tokens": 5250,
+  "latency_s": 0.15
+}

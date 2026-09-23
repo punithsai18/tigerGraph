@@ -1,0 +1,89 @@
+{
+  "case_id": "HHG-007",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.85,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3514948"
+    ],
+    "first_suspicious_txn_id": "3514948",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 111.92,
+    "evidence": [
+      {
+        "claim": "Transaction 3514948 ($111.92, in_person) flagged by risk_score with model score 0.87.",
+        "source": "graph",
+        "ref": "query:card_window(card_id=C09933-K2)",
+        "entity_ids": [
+          "3514948"
+        ]
+      },
+      {
+        "claim": "Customer validation inquiry: Cardholder contacted via phone; confirmed they never initiated the transaction.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C09933"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0657",
+      "CC-3821",
+      "CC-2986"
+    ],
+    "summary": "Confirmed none on card C09933-K2 totaling $111.92 USD. Customer explicitly denied transaction. Card blocked and internal case opened under Policy R2.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-007"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 3,
+      "assumed_response": "Cardholder contacted via phone; confirmed they never initiated the transaction."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Probability < 0.70 or single score signal; verify before any block"
+      },
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "reason": "Raise monitoring sensitivity for 72 hours pending response"
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "R3: Customer confirmed transaction as legitimate"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: Cardholder confirmed activity; alert closed as false alarm"
+      }
+    ],
+    "what_changed": "Customer confirmed the transaction. Initial verification or monitoring actions updated to ALLOW_TRANSACTION and CLOSE_NO_FRAUD."
+  },
+  "sar": {
+    "file": false,
+    "reason": "Activity does not meet policy criteria for regulatory reporting (exposure <= $1,000 and isolated to single card/device without syndicate indicators).",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Customer denial confirmed compromise; device linkage evaluated; defensible action determined under Policy R2.",
+  "tool_calls": 6,
+  "tokens": 4900,
+  "latency_s": 0.15
+}

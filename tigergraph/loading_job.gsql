@@ -1,0 +1,43 @@
+// ==============================================================================
+// TigerGraph Data Loading Jobs for Fraud Investigation
+// ==============================================================================
+
+USE GRAPH FraudInvestigationGraph
+
+CREATE LOADING JOB load_fraud_data FOR GRAPH FraudInvestigationGraph {
+    DEFINE FILENAME txn_file;
+    DEFINE FILENAME id_file;
+    DEFINE FILENAME closed_cases_file;
+
+    // Load Transactions, Cards, Customers, EmailDomains, BillingRegions from transactions.csv
+    LOAD txn_file TO VERTEX Customer VALUES($customer_id, _, "standard") WHERE $customer_id IS NOT EMPTY;
+    LOAD txn_file TO VERTEX Card VALUES($card_id, $card1, $card2, $card3, $card4, $card5, $card6, "active") WHERE $card_id IS NOT EMPTY;
+    LOAD txn_file TO VERTEX Transaction VALUES($TransactionID, $ts, $TransactionAmt, $channel, $ProductCD, $risk_score, $dist1, $dist2, _) WHERE $TransactionID IS NOT EMPTY;
+    LOAD txn_file TO VERTEX EmailDomain VALUES($P_emaildomain) WHERE $P_emaildomain IS NOT EMPTY;
+    LOAD txn_file TO VERTEX BillingRegion VALUES($addr1, $addr2) WHERE $addr1 IS NOT EMPTY;
+
+    LOAD txn_file TO EDGE OWNS VALUES($customer_id, $card_id) WHERE $customer_id IS NOT EMPTY AND $card_id IS NOT EMPTY;
+    LOAD txn_file TO EDGE MADE VALUES($card_id, $TransactionID) WHERE $card_id IS NOT EMPTY AND $TransactionID IS NOT EMPTY;
+    LOAD txn_file TO EDGE PURCHASER_EMAIL VALUES($TransactionID, $P_emaildomain) WHERE $TransactionID IS NOT EMPTY AND $P_emaildomain IS NOT EMPTY;
+    LOAD txn_file TO EDGE BILLED_IN VALUES($TransactionID, $addr1) WHERE $TransactionID IS NOT EMPTY AND $addr1 IS NOT EMPTY;
+
+    // Load DeviceProfile and FROM_DEVICE edge from identity.csv
+    // DeviceProfile primary id is composite: DeviceInfo|id_30|id_31|id_33
+    LOAD id_file TO VERTEX DeviceProfile VALUES(
+        gsql_concat($DeviceInfo, "|", $id_30, "|", $id_31, "|", $id_33),
+        $DeviceInfo, $DeviceType, $id_30, $id_31, $id_33, $id_23, $id_15
+    ) WHERE $TransactionID IS NOT EMPTY;
+
+    LOAD id_file TO EDGE FROM_DEVICE VALUES(
+        $TransactionID,
+        gsql_concat($DeviceInfo, "|", $id_30, "|", $id_31, "|", $id_33)
+    ) WHERE $TransactionID IS NOT EMPTY;
+
+    // Load ClosedCase from closed_cases_history.csv
+    LOAD closed_cases_file TO VERTEX ClosedCase VALUES(
+        $case_id, $customer_id, $card_id, $opened_at, $closed_at,
+        $outcome, $pattern, $exposure_usd, $actions_taken, $report_filed, $analyst_notes
+    ) WHERE $case_id IS NOT EMPTY;
+
+    LOAD closed_cases_file TO EDGE ON_CARD VALUES($case_id, $card_id) WHERE $case_id IS NOT EMPTY AND $card_id IS NOT EMPTY;
+}

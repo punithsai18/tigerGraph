@@ -1,0 +1,131 @@
+// ==============================================================================
+// TigerGraph GSQL Parameterized Queries for Fraud Investigation
+// ==============================================================================
+
+USE GRAPH FraudInvestigationGraph
+
+// ------------------------------------------------------------------------------
+// 1. Query card_window: Retrieve transaction history and temporal chain for a card
+// ------------------------------------------------------------------------------
+CREATE QUERY card_window(VERTEX<Card> target_card, INT limit_count = 50) FOR GRAPH FraudInvestigationGraph {
+    ListAccum<VERTEX<Transaction>> @txns;
+    
+    Start = { target_card };
+    Txns = SELECT t FROM Start:s -(MADE:e)-> Transaction:t
+           ACCUM Start.@txns += t
+           ORDER BY t.ts DESC
+           LIMIT limit_count;
+
+    PRINT Txns[Txns.txn_id, Txns.ts, Txns.amount, Txns.channel, Txns.risk_score, Txns.product_cd];
+}
+
+// ------------------------------------------------------------------------------
+// 2. Query device_neighbors: Find all cards, transactions, and cases sharing a device profile
+// ------------------------------------------------------------------------------
+CREATE QUERY device_neighbors(VERTEX<DeviceProfile> target_device) FOR GRAPH FraudInvestigationGraph {
+    SetAccum<VERTEX<Card>> @@connected_cards;
+    SetAccum<VERTEX<Customer>> @@connected_customers;
+    ListAccum<VERTEX<Transaction>> @@all_txns;
+    
+    Start = { target_device };
+    
+    // Hop 1: Device to Transactions
+    Txns = SELECT t FROM Start:d -(DEVICE_OF_TXN:e)-> Transaction:t
+           ACCUM @@all_txns += t;
+           
+    // Hop 2: Transactions to Cards
+    Cards = SELECT c FROM Txns:t -(MADE_BY:e)-> Card:c
+            ACCUM @@connected_cards += c;
+            
+    // Hop 3: Cards to Customers
+    Customers = SELECT cust FROM Cards:c -(OWNED_BY:e)-> Customer:cust
+                ACCUM @@connected_customers += cust;
+
+    PRINT target_device, @@all_txns.size() AS txn_count, @@connected_cards AS connected_cards, @@connected_customers AS connected_customers;
+}
+
+// ------------------------------------------------------------------------------
+// 3. Query billing_region_activity: Analyze historical regions for a cardholder
+// ------------------------------------------------------------------------------
+CREATE QUERY billing_region_activity(VERTEX<Card> target_card) FOR GRAPH FraudInvestigationGraph {
+    MapAccum<STRING, INT> @@region_frequency;
+    
+    Start = { target_card };
+    
+    Regions = SELECT r FROM Start:c -(MADE:e1)-> Transaction:t -(BILLED_IN:e2)-> BillingRegion:r
+              ACCUM @@region_frequency += (r.region_code -> 1);
+              
+    PRINT @@region_frequency;
+}
+
+// ------------------------------------------------------------------------------
+// 4. Query shared_entity_ring: Detect multi-hop fraud rings (cards linked by device or email)
+// ------------------------------------------------------------------------------
+CREATE QUERY shared_entity_ring(VERTEX<Card> target_card) FOR GRAPH FraudInvestigationGraph {
+    SetAccum<VERTEX<Card>> @@syndicate_cards;
+    SetAccum<VERTEX<DeviceProfile>> @@shared_devices;
+    SetAccum<VERTEX<EmailDomain>> @@shared_emails;
+    
+    Start = { target_card };
+    
+    // Step 1: Card -> Transactions
+    Txns = SELECT t FROM Start:c -(MADE:e)-> Transaction:t;
+    
+    // Step 2: Transactions -> Devices & Emails
+    Devices = SELECT d FROM Txns:t -(FROM_DEVICE:e)-> DeviceProfile:d
+              ACCUM @@shared_devices += d;
+              
+    Emails = SELECT em FROM Txns:t -(PURCHASER_EMAIL:e)-> EmailDomain:em
+             ACCUM @@shared_emails += em;
+             
+    // Step 3: Devices -> Other Txns -> Other Cards
+    OtherTxnsFromDev = SELECT t FROM Devices:d -(DEVICE_OF_TXN:e)-> Transaction:t;
+    OtherCards = SELECT c FROM OtherTxnsFromDev:t -(MADE_BY:e)-> Card:c
+                 WHERE c != target_card
+                 ACCUM @@syndicate_cards += c;
+                 
+    PRINT target_card, @@syndicate_cards AS connected_cards, @@shared_devices AS shared_devices;
+}
+
+// ------------------------------------------------------------------------------
+// 5. Query retrieve_similar_cases: Retrieve historical cases matching a pattern
+// ------------------------------------------------------------------------------
+CREATE QUERY retrieve_similar_cases(STRING target_pattern, INT limit_count = 5) FOR GRAPH FraudInvestigationGraph {
+    ListAccum<VERTEX<ClosedCase>> @@matched_cases;
+    
+    Start = { ClosedCase.* };
+    Cases = SELECT c FROM Start:c
+            WHERE c.pattern == target_pattern
+            ORDER BY c.opened_at DESC
+            LIMIT limit_count;
+            
+    PRINT Cases[Cases.case_id, Cases.outcome, Cases.pattern, Cases.exposure_usd, Cases.actions_taken, Cases.report_filed, Cases.analyst_notes];
+}
+
+// ------------------------------------------------------------------------------
+// 6. Query write_case_to_graph: Insert or update a FraudCase vertex and edges
+// ------------------------------------------------------------------------------
+CREATE QUERY write_case_to_graph(
+    STRING case_id,
+    STRING status,
+    STRING verdict,
+    DOUBLE fraud_prob,
+    STRING pattern,
+    STRING pattern_desc,
+    DOUBLE exposure,
+    STRING summary,
+    STRING card_id,
+    STRING customer_id
+) FOR GRAPH FraudInvestigationGraph {
+    // Inserts FraudCase vertex into graph
+    INSERT INTO FraudCase (
+        PRIMARY_ID, status, verdict, fraud_probability, pattern, pattern_description, exposure_usd, summary
+    ) VALUES (
+        case_id, status, verdict, fraud_prob, pattern, pattern_desc, exposure, summary
+    );
+    
+    // Connect to Card
+    INSERT INTO ON_CARD (FROM, TO) VALUES (case_id FraudCase, card_id Card);
+    
+    PRINT "Case written to graph successfully" AS message;
+}
