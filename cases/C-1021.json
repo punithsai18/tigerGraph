@@ -1,0 +1,50 @@
+{
+  "case_id": "C-1021",
+  "case": {
+    "status": "open",
+    "verdict": "fraud",
+    "fraud_probability": 0.95,
+    "pattern": "account_takeover",
+    "pattern_description": "Rapid cashout mule funneling targeting offshore prepaid debit within 180 seconds.",
+    "affected_txn_ids": ["TXN_901201"],
+    "first_suspicious_txn_id": "TXN_901201",
+    "connected_card_ids": ["CUST_9012-K1", "ACCT_MULE_77"],
+    "connected_device_profiles": ["DEV_9012 | Android 14 Proxy"],
+    "exposure_usd": 64200.0,
+    "evidence": [
+      {
+        "claim": "12 micro-deposits aggregated into single wire of $64,200.00 within 180 seconds.",
+        "source": "graph",
+        "ref": "query:shared_entity_ring(depth=4)",
+        "entity_ids": ["TXN_901201", "ACCT_MULE_77"]
+      }
+    ],
+    "similar_prior_cases": ["CASE_0872", "CC-3587"],
+    "summary": "Rapid cashout mule ring involving customer Lukas M. (CUST_9012). Immediate asset freeze queued.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-C-1021"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {"action": "DECLINE_TRANSACTION", "route": "L1", "reason": "R5: Micro-deposit structuring threshold breach"}
+    ],
+    "final": [
+      {"action": "BLOCK_ALL_CARDS", "route": "L2", "reason": "R2: Exposure > $10,000 mule syndicate cashout"},
+      {"action": "FILE_REPORT", "route": "L2", "reason": "R2 / BSA: Mandatory filing for structured cashout exceeding $10k"}
+    ],
+    "what_changed": "High-value structuring verified; immediate quarantine and L2 block action queued."
+  },
+  "sar": {
+    "file": true,
+    "reason": "Exposure of $64,200.00 structured rapid cashout under Policy R2 and BSA mandates.",
+    "narrative": "This Suspicious Activity Report documents a large-scale mule funnel and structured rapid cashout involving account CUST_9012 (Lukas M.). Between 10:00 and 10:05 AM on September 24, 2026, twelve automated micro-deposits were aggregated and targeted for immediate wire diversion in the amount of $64,200.00 USD to offshore prepaid accounts. Graph traversal resolved high-risk community linkage to known syndicate cashout clusters. The institution initiated immediate terminal asset freezes and submitted this regulatory document.",
+    "subjects": ["Lukas M. (CUST_9012)", "ACCT_MULE_77"],
+    "total_amount_usd": 64200.0,
+    "activity_dates": ["2026-09-24", "2026-09-24"]
+  },
+  "stop_reason": "Structured mule funnel confirmed; L2 asset freeze queued.",
+  "tool_calls": 6,
+  "tokens": 2500,
+  "latency_s": 0.04
+}

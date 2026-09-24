@@ -1,0 +1,51 @@
+{
+  "case_id": "C-1023",
+  "case": {
+    "status": "open",
+    "verdict": "fraud",
+    "fraud_probability": 0.78,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "Card-not-present merchant velocity burst across gaming and digital gift card portals sharing device fingerprint.",
+    "affected_txn_ids": ["TXN_782101"],
+    "first_suspicious_txn_id": "TXN_782101",
+    "connected_card_ids": ["CUST_7821-K1", "CUST_7821-K2"],
+    "connected_device_profiles": ["DEV_882 | Chrome macOS | New York"],
+    "exposure_usd": 1840.0,
+    "evidence": [
+      {
+        "claim": "Rapid successive CNP purchases totaling $1,840.00 within 12 minutes at digital gift card merchants.",
+        "source": "graph",
+        "ref": "query:card_window(card_id=CUST_7821-K1)",
+        "entity_ids": ["TXN_782101"]
+      }
+    ],
+    "similar_prior_cases": ["CC-1066", "CC-3587"],
+    "summary": "CNP ring activity detected on customer Aria C. (CUST_7821). Total exposure $1,840.00 requiring Team Lead approval.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-C-1023"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {"action": "DECLINE_TRANSACTION", "route": "L1", "reason": "R5: Velocity breach on unverified merchant endpoint"},
+      {"action": "VERIFY_WITH_CUSTOMER", "route": "auto", "reason": "R1: Customer confirmation inquiry"}
+    ],
+    "final": [
+      {"action": "BLOCK_CARD", "route": "L1", "reason": "R2: Cardholder confirmation pending with exposure > $1k"},
+      {"action": "CREATE_CASE", "route": "auto", "reason": "R6: Linked cards identified under synthetic ring"}
+    ],
+    "what_changed": "High CNP velocity confirmed; temporary hold instituted pending L1 authorization."
+  },
+  "sar": {
+    "file": true,
+    "reason": "Exposure of $1,840.00 exceeds the $1,000 regulatory threshold under Policy R2.",
+    "narrative": "This Suspicious Activity Report documents suspected card-not-present fraud involving cardholder Aria C. under account CUST_7821. On September 24, 2026, multiple automated authorizations occurred in rapid sequence totaling $1,840.00 USD across high-risk digital merchant gateways. Graph analysis resolved a secondary linked card attempting concurrent authorizations from an identical IP subnet. The institution enacted preventative holds and filed this report in full compliance with FinCEN standards.",
+    "subjects": ["Aria C. (CUST_7821)"],
+    "total_amount_usd": 1840.0,
+    "activity_dates": ["2026-09-24", "2026-09-24"]
+  },
+  "stop_reason": "Defensible action confirmed under Policy R1/R5.",
+  "tool_calls": 5,
+  "tokens": 2100,
+  "latency_s": 0.04
+}

@@ -1,338 +1,1738 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TigerGraph Sentinel | Agentic Fraud Investigation & Next-Best Action</title>
-  <meta name="description" content="AI Agent for Autonomous Fraud Investigation and Next-Best Action powered by TigerGraph Knowledge Graphs, GraphRAG, and FinCEN SAR generation.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+  <title>TigerGraph Fraud Studio — Threat Cockpit & Agentic Investigation</title>
+  <meta name="description" content="AI Agent for Autonomous Fraud Investigation and Next-Best Action powered by TigerGraph Knowledge Graphs, GraphRAG, and FinCEN SAR generation."/>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <!-- Three.js for 3D Kinetic Subgraph Cluster -->
+  <script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+  
+  <link rel="stylesheet" href="/static/style.css"/>
 </head>
-<body class="dark-theme">
-  <!-- Top Navigation Bar -->
-  <header class="navbar">
-    <div class="nav-left">
-      <div class="brand-logo">
-        <svg class="tigergraph-icon" viewBox="0 0 32 32" fill="none">
-          <circle cx="16" cy="16" r="14" stroke="url(#tg-grad)" stroke-width="2.5" />
-          <path d="M10 16L14 20L22 12" stroke="url(#tg-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <defs>
-            <linearGradient id="tg-grad" x1="0" y1="0" x2="32" y2="32">
-              <stop stop-color="#FF6B00"/>
-              <stop offset="1" stop-color="#FF9E00"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div class="brand-text">
-          <span class="brand-title">TigerGraph <span class="brand-accent">Sentinel</span></span>
-          <span class="brand-subtitle">Agentic Fraud Investigation & Next-Best Action (HHGOA)</span>
+<body class="studio-app">
+
+  <!-- =========================================================================
+       GLOBAL AMBIENT 3D SUBGRAPH STAGE BACKGROUND
+       Ambient 3D Force-Directed Knowledge Graph Cluster with Glowing Nodes
+       ========================================================================= -->
+  <div class="ambient-3d-stage" id="ambient3dStage">
+    <div id="ambient-threejs-container" class="ambient-threejs-canvas"></div>
+    <canvas id="ambient2dCanvas" class="ambient-2d-canvas"></canvas>
+    <div class="stage-veil"></div>
+    <div class="stage-grain"></div>
+  </div>
+
+  <!-- =========================================================================
+       GLOBAL APP HEADER / CHROME
+       ========================================================================= -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-cluster" id="btnBrandHome" title="TigerGraph Fraud Intelligence">
+        <div class="brand-logo-svg">
+          <svg fill="none" height="34" viewBox="0 0 160 40" width="145" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="tgGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+                <stop offset="0%" stop-color="#FF7A18"/>
+                <stop offset="100%" stop-color="#FF4B00"/>
+              </linearGradient>
+              <linearGradient id="nodeGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+                <stop offset="0%" stop-color="#2563EB"/>
+                <stop offset="100%" stop-color="#1D4ED8"/>
+              </linearGradient>
+            </defs>
+            <g transform="translate(6, 4)">
+              <circle cx="16" cy="16" fill="#FFF7ED" r="15" stroke="#FED7AA" stroke-width="1.5"/>
+              <line stroke="#FF7A18" stroke-dasharray="2,2" stroke-width="1.5" x1="16" x2="8" y1="7" y2="21"/>
+              <line stroke="#FF7A18" stroke-width="1.5" x1="16" x2="24" y1="7" y2="21"/>
+              <line stroke="#2563EB" stroke-width="1.5" x1="8" x2="24" y1="21" y2="21"/>
+              <line stroke="#FF7A18" stroke-width="1.5" x1="16" x2="16" y1="7" y2="25"/>
+              <circle cx="16" cy="7" fill="url(#tgGrad)" r="3.5"/>
+              <circle cx="8" cy="21" fill="url(#tgGrad)" r="3"/>
+              <circle cx="24" cy="21" fill="url(#nodeGrad)" r="3"/>
+              <circle cx="16" cy="25" fill="#10B981" r="2.5"/>
+            </g>
+            <text fill="#0F172A" font-family="'Inter Tight', sans-serif" font-size="15" font-weight="800" letter-spacing="-0.03em" x="46" y="21">Tiger<tspan fill="#FF7A18">Graph</tspan></text>
+            <text fill="#64748B" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" letter-spacing="0.08em" x="46" y="32">FRAUD INTELLIGENCE</text>
+          </svg>
+        </div>
+        <div class="brand-engine-tag">
+          <span class="engine-title">Agentic Investigation Engine v2.4</span>
+          <span class="engine-conn">• MCP Connected</span>
         </div>
       </div>
     </div>
 
-    <div class="nav-metrics">
-      <div class="metric-pill">
-        <span class="dot active"></span>
-        <span class="pill-label">Graph Mode:</span>
-        <span class="pill-value" id="graphModeLabel">TigerGraph Engine</span>
+    <!-- Center Search Bar -->
+    <div class="header-center">
+      <div class="global-search-bar" id="globalSearchBar">
+        <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="text" id="globalSearchInput" placeholder="Search transaction, IP, account... ⌘K" readonly />
+        <kbd class="search-kbd">⌘K</kbd>
       </div>
-      <div class="metric-pill">
-        <span class="pill-label">Case Memory:</span>
-        <span class="pill-value" id="memoryCountLabel">5,565 Precedents</span>
+    </div>
+
+    <!-- Right Telemetry & User Profile -->
+    <div class="header-right">
+      <div class="status-chip status-engine">
+        <span class="pulse-dot emerald"></span>
+        <span>GSQL Engine Online • 42ms</span>
       </div>
-      <div class="metric-pill">
-        <span class="pill-label">Exam Queue:</span>
-        <span class="pill-value" id="examCasesLabel">20 Cases</span>
+      
+      <div class="status-chip status-agent">
+        <span class="pulse-dot blue"></span>
+        <span>Agent Active</span>
       </div>
-      <div class="metric-pill">
-        <span class="pill-label">Compliance:</span>
-        <span class="pill-value text-emerald">FinCEN / BSA</span>
+
+      <a href="/landing" class="header-btn" title="View 3D Traversal Landing Page" style="text-decoration: none;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>Landing Page</span>
+      </a>
+
+      <button class="header-btn" id="btnStoryModeToggle" title="Launch 3D Kinetic Subgraph Story Mode">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+        </svg>
+        <span>3D Story Mode</span>
+      </button>
+
+      <div class="notifications-btn-wrap">
+        <button class="icon-btn" id="btnNotifications" title="Alert Notifications">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="badge-dot-count">3</span>
+        </button>
+        <!-- Dropdown Notifications Menu -->
+        <div class="notif-dropdown" id="notifDropdown">
+          <div class="notif-header">
+            <h4>Live Security Alerts</h4>
+            <span class="notif-badge">3 New</span>
+          </div>
+          <div class="notif-list">
+            <div class="notif-item unread" onclick="navigateToTab('investigate')">
+              <span class="notif-dot red"></span>
+              <div class="notif-text">
+                <div class="notif-title">High Velocity Outbound Wire ($4,850.00)</div>
+                <div class="notif-sub">CUST_8291 • DEV_293 Proxy Lagos • Risk 0.92</div>
+              </div>
+              <span class="notif-time">Just now</span>
+            </div>
+            <div class="notif-item unread" onclick="loadCaseInWorkspace('HHG-010')">
+              <span class="notif-dot orange"></span>
+              <div class="notif-text">
+                <div class="notif-title">SAR Required: Exposure Breach &gt; $1,000</div>
+                <div class="notif-sub">Case HHG-010 • $2,840.00 Unauthorized Wire</div>
+              </div>
+              <span class="notif-time">4m ago</span>
+            </div>
+            <div class="notif-item" onclick="loadCaseInWorkspace('HHG-014')">
+              <span class="notif-dot purple"></span>
+              <div class="notif-text">
+                <div class="notif-title">Syndicate Ring Expansion Detected</div>
+                <div class="notif-sub">6 linked cards sharing device hash</div>
+              </div>
+              <span class="notif-time">18m ago</span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <a href="/login" class="user-profile-badge" title="Switch Persona / Sign Out" style="text-decoration: none; color: inherit; cursor: pointer;">
+        <div class="user-avatar">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80" alt="Elena Vance"/>
+        </div>
+        <div class="user-meta">
+          <span class="user-name">Elena Vance</span>
+          <span class="user-role">Senior Fraud Lead</span>
+        </div>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--fg-faint); margin-left: 4px;" title="Sign Out">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </a>
     </div>
   </header>
 
-  <!-- Main Application Workspace -->
-  <div class="app-layout">
-    <!-- Left Sidebar: Case Queue -->
-    <aside class="sidebar-cases">
-      <div class="sidebar-header">
-        <div class="sidebar-title-row">
-          <h3>Exam Benchmark Cases</h3>
-          <span class="badge-count" id="caseBadgeCount">20</span>
-        </div>
-        <div class="search-box">
-          <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" id="caseSearchInput" placeholder="Filter by case, trigger, card...">
-        </div>
-        <div class="filter-chips">
-          <button class="chip active" data-filter="all">All (20)</button>
-          <button class="chip" data-filter="fraud">Fraud</button>
-          <button class="chip" data-filter="legitimate">Legitimate</button>
-          <button class="chip" data-filter="sar">SAR Filed</button>
-        </div>
-      </div>
+  <!-- =========================================================================
+       APP BODY LAYOUT: SIDEBAR + MAIN CONTENT WORKSPACE
+       ========================================================================= -->
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="app-sidebar">
+      <div class="sidebar-section-title">PLATFORM CORE</div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          <span>Dashboard</span>
+        </button>
 
-      <div class="case-list-scroll" id="caseListContainer">
-        <!-- Rendered dynamically -->
-        <div class="loading-spinner">Loading benchmark cases...</div>
+        <button class="nav-item" data-tab="investigate">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+          </svg>
+          <span>Investigate</span>
+        </button>
+
+        <button class="nav-item" data-tab="workspace" id="navItemWorkspace">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span id="navWorkspaceTitle">Workspace (C-1024)</span>
+          <span class="nav-badge alert">HIGH</span>
+        </button>
+
+        <button class="nav-item" data-tab="cases">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>Cases</span>
+          <span class="nav-badge count" id="sidebarCaseCount">142</span>
+        </button>
+
+        <button class="nav-item" data-tab="alerts">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span>Alerts</span>
+          <span class="nav-dot-indicator"></span>
+        </button>
+
+        <button class="nav-item" data-tab="graph-explorer">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          <span>Graph Explorer</span>
+        </button>
+
+        <button class="nav-item" data-tab="case-memory">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          </svg>
+          <span>Case Memory</span>
+        </button>
+
+        <button class="nav-item" data-tab="policies">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span>Policies &amp; GraphRAG</span>
+        </button>
+
+        <button class="nav-item" data-tab="approvals">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            <path d="m9 14 2 2 4-4"/>
+          </svg>
+          <span>Approval Queue</span>
+          <span class="nav-badge count" id="approvalCountBadge">0</span>
+        </button>
+
+        <button class="nav-item" data-tab="settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span>Settings &amp; Telemetry</span>
+        </button>
+      </nav>
+
+      <!-- ORCHESTRATION STACK (PINNED BOTTOM) -->
+      <div class="sidebar-stack-card">
+        <div class="stack-card-header">
+          <div class="stack-header-left">
+            <span>ORCHESTRATION STACK</span>
+          </div>
+          <span class="status-indicator active"></span>
+        </div>
+        <div class="stack-rows">
+          <div class="stack-row">
+            <span class="stack-label">TigerGraph MCP</span>
+            <span class="stack-status active">ACTIVE</span>
+          </div>
+          <div class="stack-row">
+            <span class="stack-label">GraphRAG Index</span>
+            <span class="stack-status online">ONLINE</span>
+          </div>
+          <div class="stack-row">
+            <span class="stack-label">LangGraph Agent</span>
+            <span class="stack-status ready">READY</span>
+          </div>
+        </div>
       </div>
     </aside>
 
-    <!-- Main Investigation Center -->
-    <main class="main-content">
-      <!-- Case Banner & Header Overview -->
-      <section class="case-header-card" id="caseHeaderCard">
-        <div class="header-top-row">
-          <div class="case-id-group">
-            <span class="case-badge" id="currentCaseIdBadge">HHG-001</span>
-            <span class="status-badge" id="currentStatusBadge">CLOSED FRAUD</span>
-            <span class="pattern-badge" id="currentPatternBadge">Card Testing</span>
-          </div>
-          <div class="case-header-actions">
-            <button class="btn btn-secondary" id="btnReinvestigate">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/></svg>
-              Re-run Investigation
-            </button>
-            <button class="btn btn-primary" id="btnExportJson">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-              Export JSON Answer
-            </button>
-          </div>
-        </div>
+    <!-- MAIN APP VIEWPORTS CONTAINER -->
+    <main class="app-main" id="mainViewportContainer">
 
-        <div class="trigger-banner" id="triggerBanner">
-          <div class="trigger-type-label" id="triggerTypeLabel">RISK SCORE TRIGGER</div>
-          <div class="trigger-text-content" id="triggerTextContent">
-            Real-time model scored transaction 3514030 ($77.07, in billing region 444.0) at 0.61. Review and decide.
+      <!-- =====================================================================
+           VIEW 0: DASHBOARD (REAL-TIME THREAT COCKPIT & 3D KINETIC SUBGRAPH)
+           Exact match to user's second screenshot!
+           ===================================================================== -->
+      <section class="view-tab active" id="tabDashboard">
+        <div class="view-inner-pad dashboard-content-pad">
+          
+          <!-- Cockpit Header Status Bar -->
+          <div class="cockpit-status-bar">
+            <span class="status-dot-pulse emerald"></span>
+            <span class="cockpit-label">REAL-TIME THREAT COCKPIT • TIGERGRAPH GSQL ENGINE ONLINE</span>
           </div>
-        </div>
 
-        <!-- KPI Metrics Grid -->
-        <div class="metrics-grid">
-          <div class="kpi-card">
-            <div class="kpi-title">Initial Model Risk Score</div>
-            <div class="kpi-value text-amber" id="kpiRiskScore">0.61</div>
-            <div class="kpi-sub">Bank Real-time Detector</div>
+          <!-- Hero Greeting Row -->
+          <div class="dashboard-hero-row">
+            <div class="hero-left">
+              <h1 class="hero-greeting">Good morning, Elena Vance</h1>
+              <div class="hero-meta">
+                <span class="analyst-tag">Senior Intelligence Analyst • Squad Alpha</span>
+                <p class="hero-subtext">
+                  Automated link-traversal agents detected <strong class="text-red">3 newly converged transaction rings</strong> in the last 45 minutes. Supervised high-value quarantine pending sign-off.
+                </p>
+              </div>
+            </div>
+            <div class="hero-right-actions">
+              <button class="btn btn-outline-clean" id="btnExportBriefing">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                <span>Export Morning Briefing</span>
+              </button>
+              <button class="btn btn-orange-hero" id="btnStartNewInvHero" onclick="navigateToTab('investigate')">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>+ Start New Investigation</span>
+              </button>
+            </div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Agent Calibrated Probability</div>
-            <div class="kpi-value text-orange" id="kpiFraudProb">86%</div>
-            <div class="kpi-sub">GraphRAG Evidence Grounded</div>
+
+          <!-- System Telemetry Strip -->
+          <div class="dashboard-telemetry-strip">
+            <div class="telem-item">
+              <span class="pulse-dot emerald"></span>
+              <span>Cluster: <strong class="text-mono">us-east-prod</strong></span>
+            </div>
+            <div class="telem-item">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ec4899" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span><strong class="text-mono">5,214,090</strong> Vertices</span>
+            </div>
+            <div class="telem-item">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              <span><strong class="text-mono">18,410,240</strong> Edges</span>
+            </div>
+            <div class="telem-item">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#10b981" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>GraphRAG Latency: <strong class="text-mono">18ms</strong></span>
+            </div>
+            <div class="telem-pill-swarm">
+              <span class="swarm-dot"></span>
+              <span>LangGraph Swarm: 14 Active Nodes</span>
+            </div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Total Financial Exposure</div>
-            <div class="kpi-value text-cyan" id="kpiExposure">$77.07</div>
-            <div class="kpi-sub" id="kpiTxnCount">1 affected transaction</div>
+
+          <!-- Top 4 KPI Metric Cards -->
+          <div class="dash-kpi-grid">
+            <!-- Card 1: Active Investigations -->
+            <div class="dash-kpi-card">
+              <div class="kpi-top-row">
+                <span class="dash-kpi-title">ACTIVE INVESTIGATIONS</span>
+                <div class="kpi-icon-box orange">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </div>
+              </div>
+              <div class="kpi-main-number">
+                <span>24</span>
+                <span class="badge-growth">+3 today</span>
+              </div>
+              <div class="kpi-split-bar">
+                <div class="bar-fill orange" style="width: 75%;"></div>
+                <div class="bar-fill blue" style="width: 25%;"></div>
+              </div>
+              <div class="kpi-sub-legend">
+                <span><i class="dot orange"></i> 18 Autonomous</span>
+                <span><i class="dot blue"></i> 6 Human Handled</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Critical Threat Cases -->
+            <div class="dash-kpi-card">
+              <div class="kpi-top-row">
+                <span class="dash-kpi-title">CRITICAL THREAT CASES</span>
+                <div class="kpi-icon-box red">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></svg>
+                </div>
+              </div>
+              <div class="kpi-main-number text-red">
+                <span>8</span>
+                <span class="badge-danger">AVG 91.4%</span>
+              </div>
+              <div class="kpi-sub-badges">
+                <span class="sub-badge-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 5 ATO Attacks</span>
+                <span class="sub-badge-item"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg> 3 Mule Rings</span>
+              </div>
+            </div>
+
+            <!-- Card 3: Human Approvals Needed -->
+            <div class="dash-kpi-card">
+              <div class="kpi-top-row">
+                <span class="dash-kpi-title">HUMAN APPROVALS NEEDED</span>
+                <div class="kpi-icon-box blue">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 2 4 4-12 12H6v-4L18 2z"/><path d="m14 6 4 4"/></svg>
+                </div>
+              </div>
+              <div class="kpi-main-number">
+                <span>3</span>
+                <span class="badge-pending">Pending Review</span>
+              </div>
+              <div class="kpi-sub-text-clock">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Threshold &gt;$10k &amp; ledger freeze...</span>
+              </div>
+            </div>
+
+            <!-- Card 4: Evidence Pending -->
+            <div class="dash-kpi-card">
+              <div class="kpi-top-row">
+                <span class="dash-kpi-title">EVIDENCE PENDING</span>
+                <div class="kpi-icon-box emerald">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 0 0 8 11a4 4 0 1 1 8 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0 0 15.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 0 0 4 11c0 1.25.143 2.465.414 3.63"/></svg>
+                </div>
+              </div>
+              <div class="kpi-main-number">
+                <span>11</span>
+                <span class="badge-sla">4 SLA near 2h</span>
+              </div>
+              <div class="kpi-sub-legend-row">
+                <span>Step-Up 2FA: <strong>7</strong></span>
+                <span>Open Banking API: <strong>4</strong></span>
+              </div>
+            </div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-title">Connected Graph Ring Size</div>
-            <div class="kpi-value text-purple" id="kpiRingSize">0 Cards</div>
-            <div class="kpi-sub" id="kpiDeviceName">SAMSUNG SM-G892A</div>
+
+          <!-- 2-Column Main Dashboard Grid -->
+          <div class="dash-main-grid">
+            <!-- Left Column: Risk Velocity + Subgraph Rings -->
+            <div class="dash-left-col">
+              
+              <!-- Risk Activity & Detection Velocity Card -->
+              <div class="dash-card">
+                <div class="dash-card-header">
+                  <div>
+                    <h3>Risk Activity &amp; Detection Velocity</h3>
+                    <p class="dash-card-sub">Hourly graph signal ingress vs automated mitigations</p>
+                  </div>
+                  <span class="badge-live-24h">LIVE 24H</span>
+                </div>
+
+                <!-- SVG Velocity Wave Chart -->
+                <div class="velocity-chart-wrapper">
+                  <div class="chart-peak-callout">
+                    Peak: 4.8k signals/hr (03:00 UTC)
+                  </div>
+                  <div class="chart-legend-row">
+                    <span class="legend-item"><i class="dash-dash green"></i> Signal Intake</span>
+                    <span class="legend-item"><i class="dash-line orange"></i> Auto-Mitigated</span>
+                  </div>
+                  <svg class="velocity-wave-svg" viewBox="0 0 500 180" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="waveOrangeGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#ff6a00" stop-opacity="0.28"/>
+                        <stop offset="100%" stop-color="#ff6a00" stop-opacity="0.0"/>
+                      </linearGradient>
+                      <linearGradient id="waveGreenGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#10b981" stop-opacity="0.18"/>
+                        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+                      </linearGradient>
+                    </defs>
+                    <!-- Signal Intake Wave -->
+                    <path d="M 0,140 Q 70,60 140,110 T 280,120 T 380,40 T 500,130 L 500,180 L 0,180 Z" fill="url(#waveGreenGrad)"/>
+                    <path d="M 0,140 Q 70,60 140,110 T 280,120 T 380,40 T 500,130" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="4,4"/>
+                    
+                    <!-- Auto-mitigated Orange Wave -->
+                    <path d="M 0,150 Q 70,75 140,120 T 280,130 T 380,30 T 500,120 L 500,180 L 0,180 Z" fill="url(#waveOrangeGrad)"/>
+                    <path d="M 0,150 Q 70,75 140,120 T 280,130 T 380,30 T 500,120" fill="none" stroke="#ff6a00" stroke-width="2.5"/>
+                    
+                    <!-- Peak Marker Dot -->
+                    <circle cx="380" cy="30" r="5" fill="#ff6a00" stroke="#fff" stroke-width="2"/>
+                  </svg>
+                  <div class="chart-timeline-labels">
+                    <span>00:00</span>
+                    <span>04:00</span>
+                    <span>08:00</span>
+                    <span>12:00</span>
+                    <span>16:00</span>
+                    <span class="text-bold">NOW</span>
+                  </div>
+                </div>
+
+                <!-- Bottom Stats -->
+                <div class="velocity-stats-row">
+                  <div class="stat-unit">
+                    <span class="stat-lbl">Automated Resolution</span>
+                    <div class="stat-val text-bold">84.2%</div>
+                    <span class="stat-change text-emerald">+6.1% vs last week</span>
+                  </div>
+                  <div class="stat-unit">
+                    <span class="stat-lbl">Mean Triage Duration</span>
+                    <div class="stat-val text-bold">3.8m</div>
+                    <span class="stat-change text-emerald">-42s with LangGraph</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TigerGraph Subgraph Rings Card with Interactive 3D Canvas -->
+              <div class="dash-card">
+                <div class="dash-card-header">
+                  <div class="card-title-group">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    <h3>TigerGraph Subgraph Rings</h3>
+                  </div>
+                  <span class="badge-converged">2 Converged</span>
+                </div>
+
+                <!-- Badges -->
+                <div class="subgraph-banner-badges">
+                  <span class="badge-traversal"><span class="pulse-dot-small orange"></span> Live Subgraph Traversal: 14.2M Vertices</span>
+                  <button class="btn-ring-detect" onclick="openStoryMode()">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></svg>
+                    <span>Multi-Hop Ring Detection</span>
+                  </button>
+                </div>
+
+                <!-- Interactive 3D WebGL Subgraph Stage -->
+                <div class="dash-subgraph-3d-box" id="dashSubgraph3dBox">
+                  <div id="subgraphThreeContainer" class="subgraph-three-view"></div>
+                  <div class="drag-hint-pill">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></svg>
+                    <span>Interactive 3D • Drag / Move</span>
+                  </div>
+                </div>
+
+                <!-- Converged Ring Items -->
+                <div class="ring-items-stack">
+                  <!-- Ring Item 1 -->
+                  <div class="ring-item-card">
+                    <div class="ring-item-top">
+                      <div>
+                        <div class="ring-title">Cluster #92 — Device Fingerprint Collision</div>
+                        <div class="ring-code">FP_9821_CANARY (5 Accounts Linked)</div>
+                      </div>
+                      <span class="ring-risk-pill red">96% RISK</span>
+                    </div>
+                    <p class="ring-desc">
+                      Five checking accounts opened across 3 jurisdictions sharing GPU WebGL canvas fingerprint and SIM serial mask within a 48-minute burst.
+                    </p>
+                    <div class="ring-item-bottom">
+                      <div class="avatar-stack">
+                        <span class="av">A1</span>
+                        <span class="av">A2</span>
+                        <span class="av">A3</span>
+                        <span class="av more">+2</span>
+                      </div>
+                      <a href="javascript:void(0)" class="ring-link" onclick="loadCaseInWorkspace('C-1024')">Explore Subgraph &rarr;</a>
+                    </div>
+                  </div>
+
+                  <!-- Ring Item 2 -->
+                  <div class="ring-item-card">
+                    <div class="ring-item-top">
+                      <div>
+                        <div class="ring-title">Rapid Cashout Ring #14 — Mule Funnel</div>
+                        <div class="ring-code">Circular GSQL Path: 4-Hop Funnel</div>
+                      </div>
+                      <span class="ring-risk-pill orange">88% RISK</span>
+                    </div>
+                    <p class="ring-desc">
+                      Micro-deposits received from 12 distinct ACH origination endpoints rapidly aggregated into offshore prepaid debit within 180 seconds.
+                    </p>
+                    <div class="ring-item-bottom">
+                      <span class="volume-tag">Volume: $64,200.00 USD</span>
+                      <a href="javascript:void(0)" class="ring-link" onclick="loadCaseInWorkspace('C-1021')">Inspect Flow &rarr;</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right Column: Priority Case Queue + Agent Decision Stream -->
+            <div class="dash-right-col">
+              
+              <!-- Priority Case Queue Table Card -->
+              <div class="dash-card">
+                <div class="dash-card-header">
+                  <div>
+                    <h3>Priority Case Queue</h3>
+                    <p class="dash-card-sub">Triaged in accordance with Enterprise Graph Policy G-402</p>
+                  </div>
+                  <div class="dash-filter-btn-group">
+                    <button class="btn-table-action active"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Filter (Active)</button>
+                    <button class="btn-table-action"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg> Score (Desc)</button>
+                  </div>
+                </div>
+
+                <div class="priority-table-wrapper">
+                  <table class="priority-queue-table">
+                    <thead>
+                      <tr>
+                        <th>CASE ID</th>
+                        <th>SUBJECT / ACCOUNT</th>
+                        <th>FRAUD PATTERN</th>
+                        <th>RISK</th>
+                        <th>CONFIDENCE</th>
+                        <th>STATUS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr onclick="loadCaseInWorkspace('C-1024')">
+                        <td><span class="case-link red">C-1024</span></td>
+                        <td><strong>Marcus V.</strong><br/><span class="sub-acc">CUST_8291</span></td>
+                        <td>Account Takeover</td>
+                        <td><span class="score-pill red">92%</span></td>
+                        <td class="text-mono">81%</td>
+                        <td><span class="status-chip-sm orange"><i class="dot orange"></i> Investigating</span></td>
+                      </tr>
+                      <tr onclick="loadCaseInWorkspace('C-1023')">
+                        <td><span class="case-link">C-1023</span></td>
+                        <td><strong>Aria C.</strong><br/><span class="sub-acc">CUST_7821</span></td>
+                        <td>CNP Card Ring</td>
+                        <td><span class="score-pill orange">78%</span></td>
+                        <td class="text-mono">94%</td>
+                        <td><span class="status-chip-sm blue"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg> Approval Req.</span></td>
+                      </tr>
+                      <tr onclick="loadCaseInWorkspace('C-1022')">
+                        <td><span class="case-link">C-1022</span></td>
+                        <td><strong>David K.</strong><br/><span class="sub-acc">CUST_2318</span></td>
+                        <td>Synthetic Identity</td>
+                        <td><span class="score-pill pink">89%</span></td>
+                        <td class="text-mono">87%</td>
+                        <td><span class="status-chip-sm purple"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg> Evidence Wait</span></td>
+                      </tr>
+                      <tr onclick="loadCaseInWorkspace('C-1021')">
+                        <td><span class="case-link red">C-1021</span></td>
+                        <td><strong>Lukas M.</strong><br/><span class="sub-acc">CUST_9012</span></td>
+                        <td>Mule / Rapid Cashout</td>
+                        <td><span class="score-pill red">95%</span></td>
+                        <td class="text-mono">96%</td>
+                        <td><span class="status-chip-sm red"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Action Queued</span></td>
+                      </tr>
+                      <tr onclick="loadCaseInWorkspace('C-1020')">
+                        <td><span class="case-link">C-1020</span></td>
+                        <td><strong>Elena R.</strong><br/><span class="sub-acc">CUST_4419</span></td>
+                        <td>False Positive Reversal</td>
+                        <td><span class="score-pill green">24%</span></td>
+                        <td class="text-mono">99%</td>
+                        <td><span class="status-chip-sm green">&#x2714; Closed</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="priority-table-footer">
+                  <span class="footer-count">Showing 5 of 24 active high-priority queues</span>
+                  <a href="javascript:void(0)" class="view-all-link" onclick="navigateToTab('cases')">View All Open Investigations &rarr;</a>
+                </div>
+              </div>
+
+              <!-- Agent Decision Stream Card -->
+              <div class="dash-card">
+                <div class="dash-card-header">
+                  <div class="card-title-group">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    <h3>Agent Decision Stream (Live MCP Invocations)</h3>
+                  </div>
+                  <span class="text-mono channel-tag">Channel: #tigergraph-agentic-stream</span>
+                </div>
+
+                <div class="decision-stream-list" id="agentDecisionStreamList">
+                  <div class="stream-item">
+                    <span class="stream-time text-mono">10:14:02 AM</span>
+                    <span class="stream-badge amber">TOOL_EXEC</span>
+                    <span class="stream-text">Agent executed <strong class="text-mono">tg_query('detect_fast_mule_hops')</strong></span>
+                    <span class="stream-tag purple">4 devices identified</span>
+                  </div>
+                  <div class="stream-item">
+                    <span class="stream-time text-mono">10:13:48 AM</span>
+                    <span class="stream-badge green">MEMORY_PUT</span>
+                    <span class="stream-text">Case C-1019 resolved as <strong class="text-mono">closed_fraud</strong> into CaseMemory</span>
+                    <span class="stream-tag blue">Cosine Sim: 0.94</span>
+                  </div>
+                  <div class="stream-item">
+                    <span class="stream-time text-mono">10:12:15 AM</span>
+                    <span class="stream-badge blue">API_DISPATCH</span>
+                    <span class="stream-text">Step-up authentication challenge dispatched to <strong class="text-mono">CUST_8291</strong></span>
+                    <span class="stream-tag gray">SMS Sent (OTP)</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- Center Dual Panels: Graph Visualizer + Evidence Timeline -->
-      <div class="workspace-grid">
-        <!-- Interactive Graph Canvas -->
-        <div class="panel-card graph-panel">
-          <div class="panel-header">
-            <div class="panel-title-group">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-              <h3>TigerGraph Subgraph Explorer</h3>
+      <!-- =====================================================================
+           VIEW 1: INVESTIGATE (TRIGGER NEW INVESTIGATION)
+           ===================================================================== -->
+      <section class="view-tab" id="tabInvestigate">
+        <div class="view-inner-pad">
+          
+          <!-- Breadcrumb & Session Tag -->
+          <div class="page-meta-row">
+            <div class="breadcrumbs">
+              <a href="#" onclick="navigateToTab('dashboard')">Dashboard</a>
+              <span class="sep">/</span>
+              <span class="current">New Investigation Trigger</span>
             </div>
-            <div class="graph-legend">
-              <span class="legend-item"><span class="legend-dot customer"></span>Customer</span>
-              <span class="legend-item"><span class="legend-dot card"></span>Card</span>
-              <span class="legend-item"><span class="legend-dot txn"></span>Txn</span>
-              <span class="legend-item"><span class="legend-dot device"></span>Device</span>
-              <span class="legend-item"><span class="legend-dot ring"></span>Syndicate</span>
-            </div>
-          </div>
-          <div class="graph-canvas-container">
-            <canvas id="graphCanvas"></canvas>
-            <div class="graph-controls">
-              <button class="btn-icon" id="btnZoomIn" title="Zoom In">+</button>
-              <button class="btn-icon" id="btnZoomOut" title="Zoom Out">-</button>
-              <button class="btn-icon" id="btnResetGraph" title="Reset View">&#x21bb;</button>
-            </div>
-          </div>
-          <div class="graph-footer-notes" id="graphFooterNotes">
-            Tip: Click and drag nodes to inspect connections. Hover over nodes to see IDs and attributes.
-          </div>
-        </div>
-
-        <!-- Evidence & Graph Claims Timeline -->
-        <div class="panel-card evidence-panel">
-          <div class="panel-header">
-            <div class="panel-title-group">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-              <h3>Forensic Evidence & Claims</h3>
-            </div>
-            <span class="evidence-count" id="evidenceCountBadge">3 Findings</span>
-          </div>
-          <div class="evidence-list" id="evidenceListContainer">
-            <!-- Dynamic evidence items -->
+            <div class="session-chip">MCP SESSION #9182</div>
           </div>
 
-          <!-- Historical Precedents (Case Memory) -->
-          <div class="memory-section">
-            <div class="memory-header">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-              <h4>Retrieved Case Memory Precedents</h4>
+          <!-- Page Title & Subtitle -->
+          <div class="page-title-row">
+            <div class="title-wrap">
+              <h1>Trigger New Investigation</h1>
+              <span class="pill-badge-orange">AUTONOMOUS DISPATCH</span>
             </div>
-            <div class="memory-chips" id="memoryChipsContainer">
-              <!-- Dynamically populated chips -->
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bottom Grid: Next-Best Action Progression + SAR Regulatory Filing -->
-      <div class="actions-sar-grid">
-        <!-- Next Best Actions Card -->
-        <div class="panel-card nba-card">
-          <div class="panel-header">
-            <div class="panel-title-group">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              <h3>Policy-Governed Next-Best Actions (NBA)</h3>
-            </div>
-            <span class="approval-legend-note">Routes: <span class="tag tag-auto">auto</span> <span class="tag tag-l1">L1 Team Lead</span> <span class="tag tag-l2">L2 Manager</span></span>
+            <p class="page-subtitle">
+              Initiate TigerGraph MCP multi-hop traversal, entity resolution, and autonomous fraud agent reasoning across active subgraphs.
+            </p>
           </div>
 
-          <!-- Step Progression: Initial vs Evidence vs Final -->
-          <div class="nba-steps-container">
-            <!-- Stage 1: Initial Recommendation -->
-            <div class="nba-stage">
-              <div class="stage-title">
-                <span class="step-num">1</span>
-                <span>Initial Recommendation (Before Evidence)</span>
+          <!-- Subgraph Context Engine Bar -->
+          <div class="context-engine-banner">
+            <div class="context-engine-left">
+              <span class="pulse-dot emerald"></span>
+              <span class="engine-lead">Graph Context Engine</span>
+              <span class="engine-name">FinGraph_Production_v2 (14.2M Vertices)</span>
+            </div>
+            <div class="context-engine-right">
+              <span class="latency-label">Latency</span>
+              <span class="latency-val">38ms gRPC</span>
+            </div>
+          </div>
+
+          <!-- Preset Demo Switcher -->
+          <div class="preset-strip">
+            <span class="preset-label">Load Investigation Preset:</span>
+            <button class="preset-pill active" onclick="loadTriggerPreset('C-1024')">Case C-1024 (Lagos ATO Wire)</button>
+            <button class="preset-pill" onclick="loadTriggerPreset('HHG-001')">HHG-001 (Card Testing)</button>
+            <button class="preset-pill" onclick="loadTriggerPreset('HHG-010')">HHG-010 (SAR Mandatory &gt; $1k)</button>
+            <button class="preset-pill" onclick="loadTriggerPreset('HHG-014')">HHG-014 (Multi-card Mule Ring)</button>
+            <button class="preset-pill" onclick="loadTriggerPreset('HHG-004')">HHG-004 (Velocity Spike)</button>
+          </div>
+
+          <!-- SECTION 1: INGESTION VECTOR CARDS -->
+          <div class="section-container">
+            <div class="section-head">
+              <div class="section-title">
+                <span class="step-num">1.</span> SELECT TRIGGER ORIGIN &amp; INGESTION VECTOR
+                <span class="section-title-sub">• Determines GraphRAG agent policy weights &amp; traversal depth</span>
               </div>
-              <div class="action-items-list" id="initialActionsList">
-                <!-- Dynamically rendered -->
-              </div>
+              <span class="channels-bound-tag">4 Channels Bound</span>
             </div>
 
-            <!-- Stage 2: Controlled Evidence Simulation Sandbox -->
-            <div class="nba-stage evidence-sim-stage">
-              <div class="stage-title">
-                <span class="step-num">2</span>
-                <span>Controlled Evidence Gathering & Simulation</span>
-              </div>
-              <div class="sim-sandbox-box">
-                <div class="sim-prompt-row">
-                  <span class="sim-label">Action Taken:</span>
-                  <span class="sim-action-type" id="simActionType">Customer Validation Inquiry</span>
+            <div class="vector-cards-grid">
+              <!-- Card 1: Fraud Signal -->
+              <div class="vector-card active" data-vector="fraud_signal" onclick="selectVectorCard(this, 'fraud_signal')">
+                <div class="vector-card-top">
+                  <div class="vector-icon-badge orange">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                  </div>
+                  <span class="vector-type-tag red-soft">AUTO</span>
+                  <div class="custom-radio checked"></div>
                 </div>
-                <div class="sim-response-text" id="simResponseText">
-                  "Cardholder contacted via phone; explicitly denied authorizing the transaction and confirmed card remains in possession."
+                <div class="vector-card-title">Fraud Signal</div>
+                <p class="vector-card-desc">
+                  Real-time anomaly detector triggered unusual transaction velocity and outbound routing.
+                </p>
+                <div class="vector-card-footer">
+                  <span class="foot-key">Signal: <strong class="foot-val">VeloAnomaly-09</strong></span>
+                  <span class="foot-priority">Priority <strong class="text-red">1</strong></span>
                 </div>
-                <div class="sim-interactive-controls">
-                  <span class="sim-toggle-label">Test Different Customer Reply:</span>
-                  <div class="sim-btn-group">
-                    <button class="btn btn-sm btn-outline active" id="btnSimDeny">Simulate Denial (Fraud)</button>
-                    <button class="btn btn-sm btn-outline" id="btnSimConfirm">Simulate Confirmation (Legit)</button>
+              </div>
+
+              <!-- Card 2: Customer Report -->
+              <div class="vector-card" data-vector="customer_report" onclick="selectVectorCard(this, 'customer_report')">
+                <div class="vector-card-top">
+                  <div class="vector-icon-badge blue">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                  </div>
+                  <span class="vector-type-tag gray-soft">INBOUND</span>
+                  <div class="custom-radio"></div>
+                </div>
+                <div class="vector-card-title">Customer Report</div>
+                <p class="vector-card-desc">
+                  Mobile app card lock, fraud telephone escalation, or unauthorized wire notification.
+                </p>
+                <div class="vector-card-footer">
+                  <span class="foot-key">Voice &amp; App Disputed SLA: <strong class="foot-val">15m</strong></span>
+                </div>
+              </div>
+
+              <!-- Card 3: Analyst Request -->
+              <div class="vector-card" data-vector="analyst_request" onclick="selectVectorCard(this, 'analyst_request')">
+                <div class="vector-card-top">
+                  <div class="vector-icon-badge emerald">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                  </div>
+                  <span class="vector-type-tag gray-soft">MANUAL</span>
+                  <div class="custom-radio"></div>
+                </div>
+                <div class="vector-card-title">Analyst Request</div>
+                <p class="vector-card-desc">
+                  Proactive link analysis, ring expansion, or response to judicial subpoena &amp; AML freeze.
+                </p>
+                <div class="vector-card-footer">
+                  <span class="foot-key">Targeted Subgraph: <strong class="foot-val">Lead Investigator</strong></span>
+                </div>
+              </div>
+
+              <!-- Card 4: Transaction Alert -->
+              <div class="vector-card" data-vector="aml_alert" onclick="selectVectorCard(this, 'aml_alert')">
+                <div class="vector-card-top">
+                  <div class="vector-icon-badge red">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                  </div>
+                  <span class="vector-type-tag red-soft">AML</span>
+                  <div class="custom-radio"></div>
+                </div>
+                <div class="vector-card-title">Transaction Alert</div>
+                <p class="vector-card-desc">
+                  Core banking threshold breach, OFAC screening match, or rapid successive velocity cap.
+                </p>
+                <div class="vector-card-footer">
+                  <span class="foot-key">Rules Engine #318: <strong class="foot-val">Strict Lock</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: SPLIT COLUMNS -->
+          <div class="investigation-split-grid">
+            <!-- Left Column: Target Investigation Details -->
+            <div class="investigation-details-card">
+              <div class="card-head-row">
+                <div class="card-title-group">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                  </svg>
+                  <h3>Target Investigation Details</h3>
+                </div>
+                <span class="badge-preload" id="datasetPreloadBadge">DEMO DATASET PRE-LOADED</span>
+              </div>
+
+              <div class="entity-pair-grid">
+                <div class="entity-box">
+                  <div class="entity-box-top">
+                    <span class="entity-lbl">TARGET TRANSACTION ID</span>
+                    <span class="entity-status-chip blue">Verified Core Ledger</span>
+                  </div>
+                  <div class="entity-main-val">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span id="targetTxnIdVal">TXN_782391</span>
+                  </div>
+                  <div class="entity-sub-desc" id="targetTxnSubDesc">Wire $4,850.00 USD to Offshore NeoBank (Valex Pay)</div>
+                </div>
+
+                <div class="entity-box">
+                  <div class="entity-box-top">
+                    <span class="entity-lbl">CUSTOMER / ENTITY ROOT</span>
+                    <span class="entity-status-chip emerald">KYC Level 3</span>
+                  </div>
+                  <div class="entity-main-val">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span id="targetCustIdVal">CUST_8291</span>
+                  </div>
+                  <div class="entity-sub-desc" id="targetCustSubDesc">Marcus Vance - Checking ****1234</div>
+                </div>
+              </div>
+
+              <div class="risk-score-card">
+                <div class="risk-score-header">
+                  <span class="risk-score-lbl">CALCULATED COMPOSITE RISK SCORE</span>
+                  <div class="risk-score-badge-wrap">
+                    <span class="risk-score-badge" id="riskBadgeNumber">92% CRITICAL</span>
+                    <span class="risk-score-prob" id="riskProbLabel">0.924 Probability Anomaly</span>
+                  </div>
+                </div>
+
+                <div class="risk-spectrum-track">
+                  <div class="segment seg-baseline"></div>
+                  <div class="segment seg-suspicious"></div>
+                  <div class="segment seg-elevated"></div>
+                  <div class="segment seg-flagged"></div>
+                  <div class="risk-indicator-pin" id="riskIndicatorPin" style="left: 92%;"></div>
+                </div>
+                <div class="risk-spectrum-labels">
+                  <span>Baseline (0–30)</span>
+                  <span>Suspicious (31–65)</span>
+                  <span>Elevated (66–85)</span>
+                  <span class="flagged-lbl">Flagged &gt;85</span>
+                </div>
+              </div>
+
+              <div class="synopsis-box">
+                <div class="synopsis-head">
+                  <span class="synopsis-lbl">INGESTION ANOMALY REASON &amp; SYNOPSIS</span>
+                  <button class="btn-link" id="btnEditNarrative">Edit Narrative</button>
+                </div>
+                <blockquote class="synopsis-quote" id="synopsisQuoteContent">
+                  "Unusual transaction amount <strong class="hl-red">[$4,850.00 vs $120.00 90-day avg]</strong> originated from unverified IP <strong class="hl-dark">[197.210.64.12 - Lagos, Nigeria]</strong> via iPhone 15 Pro device hash not previously seen in Marcus Vance's 3-year historical entity subgraph."
+                </blockquote>
+              </div>
+
+              <div class="context-cards-row">
+                <div class="context-chip-card">
+                  <div class="context-chip-icon emerald">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                  </div>
+                  <div class="context-chip-text">
+                    <div class="context-chip-title">TARGET GRAPH CLUSTER</div>
+                    <div class="context-chip-val" id="targetClusterVal">FinGraph_Production_v2</div>
+                    <div class="context-chip-sub">14,204,188 vertices • 42M edges</div>
+                  </div>
+                </div>
+
+                <div class="context-chip-card">
+                  <div class="context-chip-icon blue">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  </div>
+                  <div class="context-chip-text">
+                    <div class="context-chip-title">GRAPHRAG POLICY CONTEXT</div>
+                    <div class="context-chip-val" id="targetPolicyVal">POL-ATO-01</div>
+                    <div class="context-chip-sub">Account Takeover &amp; Device Mismatch</div>
                   </div>
                 </div>
               </div>
+
+              <div class="snapshot-banner">
+                <div class="snapshot-left">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="12" r="3"/><line x1="8.5" y1="7.5" x2="15.5" y2="10.5"/><line x1="8.5" y1="16.5" x2="15.5" y2="13.5"/></svg>
+                  <div>
+                    <div class="snapshot-title">Subgraph Snapshot Ingestion</div>
+                    <div class="snapshot-sub">4-hop radius cached in TigerGraph GraphStore for fast Agentic dispatch</div>
+                  </div>
+                </div>
+                <div class="snapshot-tag">
+                  <span class="pulse-dot-small emerald"></span>
+                  <span>143 Edges Pre-loaded</span>
+                </div>
+              </div>
+
+              <div class="subgraph-preview-box">
+                <canvas id="miniPreviewCanvas"></canvas>
+                <div class="preview-overlay-tag">GSQL 4-HOP TOPOLOGY PREVIEW</div>
+              </div>
+
+              <div class="summary-pills-row">
+                <div class="summary-pill">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                  <div>
+                    <div class="pill-bold">4 Devices</div>
+                    <div class="pill-sub">1 Unregistered</div>
+                  </div>
+                </div>
+
+                <div class="summary-pill">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                  <div>
+                    <div class="pill-bold">7 Accounts</div>
+                    <div class="pill-sub">No prior chargebacks</div>
+                  </div>
+                </div>
+
+                <div class="summary-pill highlight">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <div>
+                    <div class="pill-bold text-orange">Case C-0872</div>
+                    <div class="pill-sub text-red">89% Pattern Match</div>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
-            <!-- Stage 3: Final Recommendation -->
-            <div class="nba-stage">
-              <div class="stage-title">
-                <span class="step-num">3</span>
-                <span>Final Defensible Action (After Evidence)</span>
+            <!-- Right Column: Live Agent Pipeline -->
+            <div class="agent-pipeline-card">
+              <div class="card-head-row">
+                <div class="card-title-group">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                  </svg>
+                  <div>
+                    <h3>Live Agent Pipeline</h3>
+                    <div class="pipeline-card-sub">Autonomous pre-computation &amp; context assembly</div>
+                  </div>
+                </div>
+                <span class="badge-langgraph">LANGGRAPH READY</span>
               </div>
-              <div class="action-items-list" id="finalActionsList">
-                <!-- Dynamically rendered -->
+
+              <div class="pipeline-steps-list">
+                <div class="pipe-step done" id="pipeStep1">
+                  <div class="pipe-indicator"><span class="check-icon">&#x2714;</span></div>
+                  <div class="pipe-content">
+                    <div class="pipe-step-top">
+                      <span class="pipe-step-title">Core Ledger Retrieval</span>
+                      <span class="pipe-badge verified">Verified (8ms)</span>
+                    </div>
+                    <p class="pipe-step-desc">Transaction <strong>txn_782391</strong> pulled from Banking API with cryptographically signed payload.</p>
+                  </div>
+                </div>
+
+                <div class="pipe-step done" id="pipeStep2">
+                  <div class="pipe-indicator"><span class="check-icon">&#x2714;</span></div>
+                  <div class="pipe-content">
+                    <div class="pipe-step-top">
+                      <span class="pipe-step-title">Customer Resolution in TigerGraph</span>
+                      <span class="pipe-badge green">3 Years Tenure</span>
+                    </div>
+                    <p class="pipe-step-desc">Entity <strong>CUST_8291</strong> matched. Single identity cluster, no aliases detected.</p>
+                  </div>
+                </div>
+
+                <div class="pipe-step done" id="pipeStep3">
+                  <div class="pipe-indicator"><span class="check-icon">&#x2714;</span></div>
+                  <div class="pipe-content">
+                    <div class="pipe-step-top">
+                      <span class="pipe-step-title">Graph Subtree Instantiation</span>
+                      <span class="pipe-badge purple">143 Historical Edges</span>
+                    </div>
+                    <p class="pipe-step-desc">Extracted 4 linked devices, 7 past transfer beneficiary accounts, and 2 card tokens.</p>
+                  </div>
+                </div>
+
+                <div class="pipe-step done" id="pipeStep4">
+                  <div class="pipe-indicator"><span class="check-icon">&#x2714;</span></div>
+                  <div class="pipe-content">
+                    <div class="pipe-step-top">
+                      <span class="pipe-step-title">Historical Case Memory Similarity</span>
+                      <span class="pipe-badge red">89% Vector Match</span>
+                    </div>
+                    <p class="pipe-step-desc">Semantically aligned to <strong>Case C-0872</strong> (SIM-swap Wire Drain ring identified Dec 2024).</p>
+                  </div>
+                </div>
+
+                <div class="pipe-step done" id="pipeStep5">
+                  <div class="pipe-indicator"><span class="check-icon">&#x2714;</span></div>
+                  <div class="pipe-content">
+                    <div class="pipe-step-top">
+                      <span class="pipe-step-title">GraphRAG Context Ingestion</span>
+                      <span class="pipe-badge blue">POL-ATO-01 Rules</span>
+                    </div>
+                    <p class="pipe-step-desc">Compliance and threat taxonomy injected into Agent scratchpad for zero-shot reasoning.</p>
+                  </div>
+                </div>
+
+                <div class="pipe-step active-standby" id="pipeStep6">
+                  <div class="pipe-indicator"><span class="standby-circle"></span></div>
+                  <div class="pipe-content">
+                    <div class="pipe-step-top">
+                      <span class="pipe-step-title">Autonomous Agent Dispatch</span>
+                      <span class="pipe-badge orange" id="dispatchStatusBadge">STANDBY</span>
+                    </div>
+                    <p class="pipe-step-desc" id="dispatchStatusDesc">LangGraph orchestrator awaiting dispatch trigger to run multi-hop GSQL queries and formulate evidentiary case draft.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="agent-terminal-card">
+                <div class="terminal-head">
+                  <span class="terminal-title">AGENT PRE-FLIGHT TOKENS</span>
+                  <span class="terminal-meta" id="terminalTokenCount">Context: 2,419 / 8,192 tok</span>
+                </div>
+                <div class="terminal-body" id="agentTerminalBody">
+                  <div class="term-line">&gt; Initialized GSQL graph_query('detect_fast_mule_hops', depth=3)</div>
+                  <div class="term-line">&gt; MCP Client connected to endpoint: wss://tigergraph.internal:8142</div>
+                  <div class="term-line">&gt; Auto-remediation actions: [PREVENTATIVE_ACH_HOLD] primed</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Bottom Action Footer Bar -->
+          <footer class="investigation-action-bar">
+            <div class="action-bar-left">
+              <button class="btn btn-ghost" id="btnResetTriggerForm">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/></svg>
+                <span>Reset Form</span>
+              </button>
+              <span class="action-bar-notice" id="dispatchCaseNotice">• Dispatching will allocate new Case ID: C-1024</span>
+            </div>
+
+            <div class="action-bar-right">
+              <button class="btn btn-outline-clean" id="btnOpenFullWorkspace">
+                Open Full Investigation Workspace →
+              </button>
+              <button class="btn btn-orange-hero" id="btnStartAutonomousInvestigation">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span>Start Autonomous Investigation</span>
+              </button>
+            </div>
+          </footer>
+
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 2: WORKSPACE (C-1024 / BENCHMARK CASE INVESTIGATION CENTER)
+           ===================================================================== -->
+      <section class="view-tab" id="tabWorkspace">
+        <div class="workspace-page-pad">
+          
+          <div class="workspace-header-card">
+            <div class="ws-head-top">
+              <div class="case-meta-group">
+                <span class="case-id-pill" id="currentCaseIdBadge">C-1024</span>
+                <span class="status-pill fraud" id="currentStatusBadge">CLOSED FRAUD</span>
+                <span class="pattern-pill" id="currentPatternBadge">ACCOUNT TAKEOVER</span>
+              </div>
+              <div class="ws-head-actions">
+                <button class="btn btn-secondary-sm" id="btnReinvestigate">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/></svg>
+                  Re-run Investigation
+                </button>
+                <button class="btn btn-primary-sm" id="btnExportJson">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                  Export JSON Answer
+                </button>
+              </div>
+            </div>
+
+            <div class="trigger-banner" id="triggerBanner">
+              <div class="trigger-tag" id="triggerTypeLabel">FRAUD SIGNAL TRIGGER</div>
+              <div class="trigger-text" id="triggerTextContent">
+                Real-time anomaly detector triggered unusual transaction velocity ($4,850.00 wire) from unverified IP [197.210.64.12 - Lagos, Nigeria] via proxy device DEV_293.
+              </div>
+            </div>
+
+            <div class="kpis-grid">
+              <div class="kpi-box">
+                <div class="kpi-lbl">Initial Model Risk Score</div>
+                <div class="kpi-num text-amber" id="kpiRiskScore">0.92</div>
+                <div class="kpi-sub">Bank Real-time Detector</div>
+              </div>
+              <div class="kpi-box">
+                <div class="kpi-lbl">Agent Calibrated Probability</div>
+                <div class="kpi-num text-orange" id="kpiFraudProb">92%</div>
+                <div class="kpi-sub">GraphRAG Evidence Grounded</div>
+              </div>
+              <div class="kpi-box">
+                <div class="kpi-lbl">Total Financial Exposure</div>
+                <div class="kpi-num text-cyan" id="kpiExposure">$4,850.00</div>
+                <div class="kpi-sub" id="kpiTxnCount">1 affected transaction</div>
+              </div>
+              <div class="kpi-box">
+                <div class="kpi-lbl">Connected Graph Ring Size</div>
+                <div class="kpi-num text-purple" id="kpiRingSize">3 Accounts</div>
+                <div class="kpi-sub" id="kpiDeviceName">DEV_293 | iPhone 15 Pro</div>
               </div>
             </div>
           </div>
 
-          <!-- What Changed Banner -->
-          <div class="what-changed-box" id="whatChangedBox">
-            <strong>What Changed:</strong> <span id="whatChangedText">Cardholder denial elevated fraud probability to 0.86, confirming the block and case creation.</span>
-          </div>
-        </div>
+          <div class="workspace-main-split">
+            <div class="panel-card ws-graph-panel">
+              <div class="panel-card-head">
+                <div class="panel-head-title">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                  <h4>TigerGraph Subgraph Explorer</h4>
+                </div>
+                <div class="canvas-legend">
+                  <span class="legend-chip"><i class="dot cust"></i>Customer</span>
+                  <span class="legend-chip"><i class="dot card"></i>Card/Acct</span>
+                  <span class="legend-chip"><i class="dot txn"></i>Txn</span>
+                  <span class="legend-chip"><i class="dot dev"></i>Device</span>
+                  <span class="legend-chip"><i class="dot ring"></i>Mule Ring</span>
+                </div>
+              </div>
 
-        <!-- FinCEN SAR Regulatory Filing Card -->
-        <div class="panel-card sar-card">
-          <div class="panel-header">
-            <div class="panel-title-group">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              <h3>FinCEN Suspicious Activity Report (SAR)</h3>
-            </div>
-            <span class="sar-status-pill" id="sarStatusPill">REQUIRED (L2 APPROVAL)</span>
-          </div>
-
-          <div class="sar-body" id="sarBodyContainer">
-            <div class="sar-meta-row">
-              <div class="sar-meta-item">
-                <span class="sar-label">Filing Status:</span>
-                <span class="sar-val" id="sarFilingStatus">Mandatory Regulatory Filing</span>
+              <div class="graph-canvas-wrapper">
+                <canvas id="graphCanvas"></canvas>
+                <div class="graph-floating-controls">
+                  <button class="btn-canvas-ctrl" id="btnZoomIn" title="Zoom In">+</button>
+                  <button class="btn-canvas-ctrl" id="btnZoomOut" title="Zoom Out">-</button>
+                  <button class="btn-canvas-ctrl" id="btnResetGraph" title="Reset Graph View">&#x21bb;</button>
+                </div>
               </div>
-              <div class="sar-meta-item">
-                <span class="sar-label">Filing Reason:</span>
-                <span class="sar-val" id="sarFilingReason">Policy R2 / R6 / Exposure Threshold</span>
-              </div>
-              <div class="sar-meta-item">
-                <span class="sar-label">Total Amount:</span>
-                <span class="sar-val text-cyan" id="sarTotalAmount">$77.07 USD</span>
-              </div>
-              <div class="sar-meta-item">
-                <span class="sar-label">Activity Dates:</span>
-                <span class="sar-val" id="sarActivityDates">2016-12-05 to 2016-12-05</span>
+              <div class="graph-footer-hint">
+                Interactive Force Graph: Click &amp; drag nodes to inspect connections. Hover to inspect entity attributes and GSQL edge weights.
               </div>
             </div>
 
-            <div class="sar-subjects-row">
-              <span class="sar-label">Subjects Identified:</span>
-              <div class="subject-chips" id="sarSubjectChips">
-                <!-- Chips -->
+            <div class="panel-card ws-evidence-panel">
+              <div class="panel-card-head">
+                <div class="panel-head-title">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <h4>Forensic Evidence &amp; Claims</h4>
+                </div>
+                <span class="badge-evidence-count" id="evidenceCountBadge">4 Findings</span>
               </div>
-            </div>
 
-            <div class="sar-narrative-container">
-              <div class="narrative-header">
-                <span class="sar-label">Regulatory Narrative (FinCEN Guidance Format):</span>
-                <button class="btn btn-sm btn-ghost" id="btnCopyNarrative">Copy Text</button>
-              </div>
-              <div class="narrative-content" id="sarNarrativeContent">
-                <!-- Narrative text -->
+              <div class="evidence-list-scroll" id="evidenceListContainer"></div>
+
+              <div class="memory-precedents-box">
+                <div class="memory-precedents-head">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <span>Retrieved Case Memory Precedents (GraphRAG)</span>
+                </div>
+                <div class="memory-chips-wrap" id="memoryChipsContainer"></div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Execution Audit Trail & Graph Writeback Footer -->
-      <footer class="audit-footer">
-        <div class="audit-item">
-          <span class="audit-label">TigerGraph Writeback:</span>
-          <span class="audit-val text-emerald" id="auditGraphWritten">&#x2714; Vertex Ingested (TG-CASE-HHG-001)</span>
+          <div class="workspace-bottom-split">
+            <div class="panel-card ws-nba-panel">
+              <div class="panel-card-head">
+                <div class="panel-head-title">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  <h4>Policy-Governed Next-Best Actions (NBA)</h4>
+                </div>
+                <div class="approval-tags-legend">
+                  Routes: <span class="route-tag auto">auto</span> <span class="route-tag l1">L1 Team Lead</span> <span class="route-tag l2">L2 Manager</span>
+                </div>
+              </div>
+
+              <div class="nba-stages-flow">
+                <div class="stage-block">
+                  <div class="stage-block-title">
+                    <span class="stage-badge-num">1</span>
+                    <span>Initial Recommendation (Before Evidence)</span>
+                  </div>
+                  <div class="action-items-list" id="initialActionsList"></div>
+                </div>
+
+                <div class="stage-block sim-box-block">
+                  <div class="stage-block-title">
+                    <span class="stage-badge-num">2</span>
+                    <span>Controlled Evidence Gathering &amp; Simulation</span>
+                  </div>
+                  <div class="sim-sandbox-content">
+                    <div class="sim-row">
+                      <span class="sim-field-lbl">Action Taken:</span>
+                      <span class="sim-field-val" id="simActionType">Customer Validation Inquiry</span>
+                    </div>
+                    <p class="sim-response-quote" id="simResponseText">
+                      "Cardholder Marcus Vance contacted via registered phone; explicitly denied authorizing $4,850 wire and confirmed card remains in possession."
+                    </p>
+                    <div class="sim-btn-row">
+                      <span class="sim-toggle-title">Simulate Customer Reply:</span>
+                      <div class="sim-btn-group">
+                        <button class="btn btn-sm btn-outline active" id="btnSimDeny">Simulate Denial (Fraud)</button>
+                        <button class="btn btn-sm btn-outline" id="btnSimConfirm">Simulate Confirmation (Legit)</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stage-block">
+                  <div class="stage-block-title">
+                    <span class="stage-badge-num">3</span>
+                    <span>Final Defensible Action (After Evidence)</span>
+                  </div>
+                  <div class="action-items-list" id="finalActionsList"></div>
+                </div>
+              </div>
+
+              <div class="what-changed-card" id="whatChangedBox">
+                <strong>What Changed:</strong> <span id="whatChangedText">Customer denial and GSQL 3-hop traversal confirmed active account takeover. Fraud probability elevated from 0.81 to 0.92, triggering mandatory L2 card block, mule quarantine, and FinCEN SAR filing.</span>
+              </div>
+            </div>
+
+            <div class="panel-card ws-sar-panel">
+              <div class="panel-card-head">
+                <div class="panel-head-title">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <h4>FinCEN Suspicious Activity Report (SAR)</h4>
+                </div>
+                <span class="sar-status-chip required" id="sarStatusPill">REQUIRED (L2 APPROVAL)</span>
+              </div>
+
+              <div class="sar-details-body">
+                <div class="sar-meta-grid">
+                  <div class="sar-meta-cell">
+                    <span class="sar-cell-lbl">Filing Status:</span>
+                    <span class="sar-cell-val" id="sarFilingStatus">Mandatory Regulatory Filing</span>
+                  </div>
+                  <div class="sar-meta-cell">
+                    <span class="sar-cell-lbl">Filing Reason:</span>
+                    <span class="sar-cell-val" id="sarFilingReason">Policy R2 / POL-ATO-01 Threshold</span>
+                  </div>
+                  <div class="sar-meta-cell">
+                    <span class="sar-cell-lbl">Total Amount:</span>
+                    <span class="sar-cell-val text-cyan" id="sarTotalAmount">$4,850.00 USD</span>
+                  </div>
+                  <div class="sar-meta-cell">
+                    <span class="sar-cell-lbl">Activity Dates:</span>
+                    <span class="sar-cell-val" id="sarActivityDates">2026-09-24 to 2026-09-24</span>
+                  </div>
+                </div>
+
+                <div class="sar-subjects-container">
+                  <span class="sar-cell-lbl">Subjects Identified:</span>
+                  <div class="subject-chips-row" id="sarSubjectChips"></div>
+                </div>
+
+                <div class="sar-narrative-box">
+                  <div class="narrative-head">
+                    <span class="sar-cell-lbl">Regulatory Narrative (FinCEN Guidance Format):</span>
+                    <button class="btn btn-sm btn-ghost" id="btnCopyNarrative">Copy Text</button>
+                  </div>
+                  <div class="narrative-text-box" id="sarNarrativeContent"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <footer class="ws-audit-footer">
+            <div class="audit-col">
+              <span class="audit-lbl">TigerGraph Writeback:</span>
+              <span class="audit-val text-emerald" id="auditGraphWritten">&#x2714; Vertex Ingested (TG-CASE-C-1024)</span>
+            </div>
+            <div class="audit-col">
+              <span class="audit-lbl">Tool Invocations:</span>
+              <span class="audit-val" id="auditToolCalls">6 GSQL calls</span>
+            </div>
+            <div class="audit-col">
+              <span class="audit-lbl">Token Consumption:</span>
+              <span class="audit-val" id="auditTokens">2,419 tokens</span>
+            </div>
+            <div class="audit-col">
+              <span class="audit-lbl">Execution Latency:</span>
+              <span class="audit-val" id="auditLatency">0.038s</span>
+            </div>
+            <div class="audit-col">
+              <span class="audit-lbl">Termination Rule:</span>
+              <span class="audit-val text-muted" id="auditStopReason">Defensible actions executed under Policy R2 and POL-ATO-01.</span>
+            </div>
+          </footer>
+
         </div>
-        <div class="audit-item">
-          <span class="audit-label">Tool Invocations:</span>
-          <span class="audit-val" id="auditToolCalls">6 GSQL calls</span>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 3: CASES QUEUE (142 BENCHMARK & LIVE CASES)
+           ===================================================================== -->
+      <section class="view-tab" id="tabCases">
+        <div class="view-inner-pad">
+          <div class="page-title-row">
+            <div class="title-wrap">
+              <h1>Benchmark Cases Queue</h1>
+              <span class="pill-badge-orange">20 IEEE-CIS BENCHMARKS + LIVE</span>
+            </div>
+            <p class="page-subtitle">
+              Browse, filter, and inspect verified cases. All 20 benchmark test cases pass validation with 100% policy compliance.
+            </p>
+          </div>
+
+          <div class="cases-filter-strip">
+            <div class="search-box-wrap">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="caseTableSearch" placeholder="Filter by case ID, pattern, verdict, card..." />
+            </div>
+            <div class="filter-chips-row">
+              <button class="chip active" data-filter="all">All (<span id="countAll">21</span>)</button>
+              <button class="chip" data-filter="fraud">Fraud</button>
+              <button class="chip" data-filter="legitimate">Legitimate</button>
+              <button class="chip" data-filter="sar">SAR Filed</button>
+              <button class="chip" data-filter="high_exposure">Exposure &gt; $1,000</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="cases-table">
+              <thead>
+                <tr>
+                  <th>Case ID</th>
+                  <th>Verdict</th>
+                  <th>Status</th>
+                  <th>Pattern Typology</th>
+                  <th>Exposure (USD)</th>
+                  <th>Risk Score</th>
+                  <th>Regulatory SAR</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="casesTableBody"></tbody>
+            </table>
+          </div>
         </div>
-        <div class="audit-item">
-          <span class="audit-label">Token Consumption:</span>
-          <span class="audit-val" id="auditTokens">5,250 tokens</span>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 4: ALERTS STREAM
+           ===================================================================== -->
+      <section class="view-tab" id="tabAlerts">
+        <div class="view-inner-pad">
+          <div class="page-title-row">
+            <div class="title-wrap">
+              <h1>Real-Time Anomaly Alerts</h1>
+              <span class="pill-badge-orange">LIVE WEBSOCKET FEED</span>
+            </div>
+            <p class="page-subtitle">Incoming anomaly detector streams across card networks, online gateways, and core ledger endpoints.</p>
+          </div>
+          <div class="alerts-feed-grid" id="alertsFeedGrid"></div>
         </div>
-        <div class="audit-item">
-          <span class="audit-label">Execution Latency:</span>
-          <span class="audit-val" id="auditLatency">0.34s</span>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 5: GRAPH EXPLORER WORKBENCH
+           ===================================================================== -->
+      <section class="view-tab" id="tabGraphExplorer">
+        <div class="view-inner-pad">
+          <div class="page-title-row">
+            <div class="title-wrap">
+              <h1>TigerGraph GSQL Multi-Hop Explorer</h1>
+              <span class="pill-badge-orange">QUERY WORKBENCH</span>
+            </div>
+            <p class="page-subtitle">Execute parameterized GSQL graph queries: card_window, device_neighbors, shared_entity_ring, and Louvain community detection.</p>
+          </div>
+
+          <div class="explorer-workbench-grid">
+            <div class="explorer-query-card">
+              <h3>Parameterized GSQL Query</h3>
+              <div class="form-group">
+                <label>Select Graph Algorithm / Query:</label>
+                <select id="gsqlQuerySelect" class="form-input">
+                  <option value="detect_fast_mule_hops">detect_fast_mule_hops(root_vertex='CUST_8291', max_depth=3)</option>
+                  <option value="card_window">card_window(card_id='C12382-K1', window_hours=72)</option>
+                  <option value="device_neighbors">device_neighbors(device_id='DEV_293', hop_limit=2)</option>
+                  <option value="shared_entity_ring">shared_entity_ring(mule_threshold=2)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>GSQL Query Code Preview:</label>
+                <pre class="gsql-preview-code" id="gsqlCodeBlock">
+INTERPRET QUERY (VERTEX&lt;Account&gt; root, INT max_depth) FOR GRAPH FinGraph_Production_v2 {
+  Start = {root};
+  Mules = SELECT tgt FROM Start:s -(TRANSFER_TO&gt;*1..max_depth)- Account:tgt
+          WHERE tgt.risk_score &gt; 0.85;
+  PRINT Mules;
+}</pre>
+              </div>
+              <button class="btn btn-orange-hero" id="btnExecuteGsql">Run GSQL Query via MCP</button>
+            </div>
+
+            <div class="explorer-results-card">
+              <div class="results-head">
+                <h3>Query Execution Output</h3>
+                <span class="badge-verified">TigerGraph v3.9 • 38ms</span>
+              </div>
+              <pre class="gsql-json-output" id="gsqlJsonOutput">
+{
+  "status": "SUCCESS",
+  "vertices_traversed": 14204188,
+  "execution_time_ms": 38.4,
+  "matched_subgraph": {
+    "root": "CUST_8291",
+    "proxy_device": "DEV_293 (iPhone 15 Pro, Lagos)",
+    "mule_nodes": ["ACCT_4421", "ACCT_9923"],
+    "off_ramp": "CRYPTO_EX (Liquidity Node)",
+    "hops": 3,
+    "cluster_confidence": 0.94
+  }
+}</pre>
+            </div>
+          </div>
         </div>
-        <div class="audit-item">
-          <span class="audit-label">Termination Rule:</span>
-          <span class="audit-val text-muted" id="auditStopReason">Defensible action confirmed under Policy R2.</span>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 6: CASE MEMORY
+           ===================================================================== -->
+      <section class="view-tab" id="tabCaseMemory">
+        <div class="view-inner-pad">
+          <div class="page-title-row">
+            <div class="title-wrap">
+              <h1>GraphRAG Precedent Case Memory</h1>
+              <span class="pill-badge-orange">5,565 HISTORICAL PRECEDENTS</span>
+            </div>
+            <p class="page-subtitle">Vector semantic and BM25 hybrid memory indexing closed historical fraud investigations across July–October 2016 and modern syndicates.</p>
+          </div>
+
+          <div class="memory-search-bar">
+            <input type="text" id="memorySearchInput" placeholder="Semantic search: 'device collision TOR Lagos wire drain'..." value="device collision TOR Lagos wire drain"/>
+            <button class="btn btn-primary" id="btnSearchMemory">Search Memory Vector</button>
+          </div>
+
+          <div class="memory-cards-grid" id="memoryCardsGrid"></div>
         </div>
-      </footer>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 7: POLICIES & GRAPHRAG
+           ===================================================================== -->
+      <section class="view-tab" id="tabPolicies">
+        <div class="view-inner-pad">
+          <div class="page-title-row">
+            <div class="title-wrap">
+              <h1>Fraud Policy Version 1.0 &amp; Compliance Matrix</h1>
+              <span class="pill-badge-orange">FINCEN / BSA / FATF ALIGNED</span>
+            </div>
+            <p class="page-subtitle">Formal policy rules R1 through R10, approval routing hierarchies, and evidence sufficiency thresholds.</p>
+          </div>
+          <div class="policies-grid" id="policiesGrid"></div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 8: APPROVAL QUEUE (HITL)
+           ===================================================================== -->
+      <section class="view-tab" id="tabApprovals">
+        <div class="view-inner-pad">
+          <div class="page-title-row">
+            <div class="title-wrap">
+              <h1>Human-In-The-Loop (HITL) Approval Queue</h1>
+              <span class="pill-badge-orange">GOVERNANCE &amp; AUDIT</span>
+            </div>
+            <p class="page-subtitle">High-impact decisions (L1 Team Lead / L2 Fraud Manager) routed autonomously for human authorization.</p>
+          </div>
+          <div class="approvals-list-wrap" id="approvalsListWrap"></div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 9: SETTINGS & TELEMETRY
+           ===================================================================== -->
+      <section class="view-tab" id="tabSettings">
+        <div class="view-inner-pad">
+          <div class="page-title-row">
+            <div class="title-wrap">
+              <h1>System Telemetry &amp; MCP Integration</h1>
+              <span class="pill-badge-orange">GSQL v3.9 • LANGGRAPH</span>
+            </div>
+            <p class="page-subtitle">Real-time connection metrics, gRPC endpoints, MCP port configuration, and audit proof verification.</p>
+          </div>
+
+          <div class="telemetry-grid">
+            <div class="telem-card">
+              <div class="telem-head">TigerGraph Dual Engine</div>
+              <div class="telem-val text-emerald">gRPC 38ms</div>
+              <div class="telem-sub">Graph: FinGraph_Production_v2 (14.2M Vertices)</div>
+            </div>
+            <div class="telem-card">
+              <div class="telem-head">Model Context Protocol (MCP)</div>
+              <div class="telem-val text-orange">Port 8142 Connected</div>
+              <div class="telem-sub">5 GSQL Tools Exposed &amp; Validated</div>
+            </div>
+            <div class="telem-card">
+              <div class="telem-head">Evidence Sufficiency Threshold</div>
+              <div class="telem-val text-purple">85.0% Minimum</div>
+              <div class="telem-sub">Enforces non-destructive step-up auth under 85%</div>
+            </div>
+            <div class="telem-card">
+              <div class="telem-head">Cryptographic Audit Ledger</div>
+              <div class="telem-val text-cyan">SHA-256 Verified</div>
+              <div class="telem-sub">0x9c48b29f...38fa5e12</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 10: 3D KINETIC SUBGRAPH STORY MODE
+           ===================================================================== -->
+      <section class="story-mode-fullscreen" id="storyModeContainer">
+        <button class="story-exit-btn" id="btnExitStoryMode">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span>Return to Studio</span>
+        </button>
+
+        <div id="threejs-container-ANIMATION_16" class="story-three-canvas"></div>
+        <canvas id="story2dCanvas" class="story-2d-overlay"></canvas>
+        <div class="stage-veil"></div>
+        <div class="stage-grain"></div>
+
+        <div class="story-hud-telemetry">
+          <div class="hud-card">
+            <span class="status-dot"></span>
+            <span>GSQL Engine Online • 42ms</span>
+          </div>
+          <div class="hud-card">
+            <span style="color: var(--orange); font-weight:700;">MCP PORT: 8142</span>
+            <span>LangGraph Orchestrator</span>
+          </div>
+        </div>
+
+        <div class="story-panels-container">
+          <div class="story-panel" data-panel="0">
+            <div class="eyebrow"><span>•</span> Hop 01 — Anomaly Ingestion • Case C-1024</div>
+            <h2>Subgraphs over<br/><em>static alerts.</em></h2>
+            <p class="sub">
+              When an unusual $4,850 wire sparks in Lagos, TigerGraph triggers instant multi-hop traversal across 14.2M accounts—unmasking device fingerprint DEV_293 in under 38ms.
+            </p>
+            <div class="metric-ribbon">
+              <div class="metric-card">
+                <div>
+                  <div class="metric-val highlight">14.2M</div>
+                  <div class="metric-lbl">Vertices Traversed</div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div>
+                  <div class="metric-val alert">92%</div>
+                  <div class="metric-lbl">Composite Risk Score</div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div>
+                  <div class="metric-val">3-Hop</div>
+                  <div class="metric-lbl">Mule Ring Depth</div>
+                </div>
+              </div>
+            </div>
+            <div class="cta">
+              <button class="pill pill-orange" onclick="advanceStory(1)">Next: Agent Reasoning &darr;</button>
+            </div>
+          </div>
+
+          <div class="story-panel" data-panel="1">
+            <div class="eyebrow"><span>•</span> Hop 02 — Agent Reasoning &amp; Sufficiency</div>
+            <h2>Uncertainty isn't failure.<br/><em>It's governance.</em></h2>
+            <p class="sub">
+              With 81% topology confidence but only 68% evidence sufficiency, our autonomous agent refuses blunt terminal freezes—prescribing non-destructive Step-Up 2FA to protect legitimate customers.
+            </p>
+            <div class="metric-ribbon">
+              <div class="metric-card">
+                <div>
+                  <div class="metric-val">68%</div>
+                  <div class="metric-lbl">Evidence Sufficiency (Req 85%)</div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div>
+                  <div class="metric-val highlight">POL-ATO-01</div>
+                  <div class="metric-lbl">GraphRAG Compliance Rule</div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div>
+                  <div class="metric-val alert">C-0872</div>
+                  <div class="metric-lbl">Case Memory Vector Match</div>
+                </div>
+              </div>
+            </div>
+            <div class="cta">
+              <button class="pill" onclick="advanceStory(2)">Next: Human Governance &darr;</button>
+            </div>
+          </div>
+
+          <div class="story-panel" data-panel="2">
+            <div class="eyebrow"><span>•</span> Hop 03 — Governed Execution &amp; Memory</div>
+            <h2>Autonomous speed.<br/><em>Human authority.</em></h2>
+            <p class="sub">
+              Every high-impact asset freeze ($10k+ threshold) routes cleanly to Senior Investigators with cryptographic audit trails, immutable ledger hashes, and instant case memory commits.
+            </p>
+            <div class="metric-ribbon">
+              <div class="metric-card">
+                <div>
+                  <div class="metric-val highlight">84.2%</div>
+                  <div class="metric-lbl">Auto Mitigation</div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div>
+                  <div class="metric-val">3.8 min</div>
+                  <div class="metric-lbl">Mean Triage Duration</div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div>
+                  <div class="metric-val">0x9c48...38fa</div>
+                  <div class="metric-lbl">Audit Proof Hash</div>
+                </div>
+              </div>
+            </div>
+            <div class="cta">
+              <button class="pill pill-orange" onclick="exitStoryModeAndLoadWorkspace('C-1024')">Enter Live Workspace &rarr;</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
+  <!-- Global Command Palette Modal (⌘K) -->
+  <div class="modal-backdrop" id="searchModal">
+    <div class="search-palette">
+      <div class="palette-input-row">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="paletteInput" placeholder="Search case (e.g. C-1024, HHG-001), transaction, account, device, or policy..." autofocus />
+        <button class="btn-close-palette" id="btnClosePalette">&#x2715;</button>
+      </div>
+      <div class="palette-results" id="paletteResults"></div>
+      <div class="palette-footer">
+        <span>Navigation: <kbd>&uarr;</kbd> <kbd>&darr;</kbd> to navigate, <kbd>Enter</kbd> to select, <kbd>ESC</kbd> to dismiss</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Narrative Edit Modal -->
+  <div class="modal-backdrop" id="narrativeModal">
+    <div class="narrative-dialog">
+      <div class="dialog-head">
+        <h3>Edit Ingestion Anomaly Narrative</h3>
+        <button class="btn-close-palette" id="btnCloseNarrative">&#x2715;</button>
+      </div>
+      <div class="dialog-body">
+        <textarea id="narrativeEditTextarea" class="narrative-textarea" rows="5"></textarea>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn btn-secondary-sm" id="btnCancelNarrative">Cancel</button>
+        <button class="btn btn-primary-sm" id="btnSaveNarrative">Save Narrative</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Morning Briefing Export Modal -->
+  <div class="modal-backdrop" id="briefingModal">
+    <div class="narrative-dialog briefing-dialog">
+      <div class="dialog-head">
+        <h3>Senior Analyst Morning Briefing • TigerGraph Fraud Intelligence</h3>
+        <button class="btn-close-palette" id="btnCloseBriefing">&#x2715;</button>
+      </div>
+      <div class="dialog-body">
+        <div class="briefing-content" id="briefingContent">
+          <h4>EXECUTIVE SUMMARY — 24 SEPTEMBER 2026</h4>
+          <p><strong>Prepared for:</strong> Elena Vance (Senior Intelligence Analyst, Squad Alpha)</p>
+          <p><strong>Cluster Status:</strong> us-east-prod (5,214,090 Vertices • 18,410,240 Edges • 18ms GraphRAG Latency)</p>
+          <hr style="margin: 10px 0; border: none; border-top: 1px solid var(--border-rule);"/>
+          <p><strong>Key Converged Incidents:</strong></p>
+          <ul>
+            <li><strong>Cluster #92 (Device Fingerprint Collision):</strong> 5 checking accounts linked via WebGL canvas hash, originating from Lagos proxy (DEV_293). 96% Risk.</li>
+            <li><strong>Rapid Cashout Ring #14 (Mule Funnel):</strong> $64,200.00 USD aggregated across 12 micro-deposits within 180 seconds. L2 quarantine queued.</li>
+            <li><strong>Autonomous Mitigations:</strong> 84.2% auto-mitigated with mean triage time of 3.8 minutes.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn btn-secondary-sm" id="btnCopyBriefing">Copy Briefing</button>
+        <button class="btn btn-primary-sm" id="btnDownloadBriefing">Download Markdown</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Controller Scripts -->
   <script src="/static/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,56 @@
+{
+  "case_id": "C-1022",
+  "case": {
+    "status": "open",
+    "verdict": "fraud",
+    "fraud_probability": 0.89,
+    "pattern": "undocumented",
+    "pattern_description": "Synthetic identity creation sharing fabricated SSN prefix and digital footprints.",
+    "affected_txn_ids": ["TXN_231801"],
+    "first_suspicious_txn_id": "TXN_231801",
+    "connected_card_ids": ["CUST_2318-K1"],
+    "connected_device_profiles": ["DEV_2318 | Windows 11 Firefox"],
+    "exposure_usd": 3200.0,
+    "evidence": [
+      {
+        "claim": "Synthetic identity indicators: SSN issuance date post-dates credit bureau establishment.",
+        "source": "graph",
+        "ref": "query:shared_entity_ring(synthetic_identity=True)",
+        "entity_ids": ["CUST_2318"]
+      }
+    ],
+    "similar_prior_cases": ["CC-2964"],
+    "summary": "Synthetic identity bust-out risk for account David K. (CUST_2318). Awaiting identity documentation proof.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-C-1022"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 2,
+      "assumed_response": "Documentation request sent for government ID verification."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {"action": "STEP_UP_AUTH", "route": "auto", "reason": "R5: Synthetic identity score requires identity verification"}
+    ],
+    "final": [
+      {"action": "BLOCK_CARD", "route": "L2", "reason": "R2: Exposure > $2,500 pending identity verification"},
+      {"action": "CREATE_CASE", "route": "auto", "reason": "R6: Synthetic cluster linkage detected"}
+    ],
+    "what_changed": "Evidence request awaiting customer document upload."
+  },
+  "sar": {
+    "file": true,
+    "reason": "Synthetic identity exposure $3,200.00 exceeds $1,000 regulatory reporting threshold.",
+    "narrative": "This Suspicious Activity Report documents suspected synthetic identity fraud involving customer David K. under account CUST_2318. Automated GraphRAG checks identified discrepancies in identity attributes, including SSN issuance anomalies and shared virtual phone numbers. The subject attempted authorizations totaling $3,200.00 USD. The account has been placed under temporary restriction pending formal identity verification.",
+    "subjects": ["David K. (CUST_2318)"],
+    "total_amount_usd": 3200.0,
+    "activity_dates": ["2026-09-24", "2026-09-24"]
+  },
+  "stop_reason": "Synthetic identity indicators confirmed; evidence pending.",
+  "tool_calls": 5,
+  "tokens": 2200,
+  "latency_s": 0.04
+}

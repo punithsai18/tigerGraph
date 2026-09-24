@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+  <title>Sign In — TigerGraph Fraud Studio</title>
+  <meta name="description" content="Secure Analyst Sign-In for TigerGraph Fraud Studio, LangGraph Swarm & Real-Time Threat Cockpit."/>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+
+  <style>
+    :root {
+      --fg: #0d0c0b;
+      --fg-soft: rgba(13, 12, 11, 0.72);
+      --fg-faint: rgba(13, 12, 11, 0.44);
+      --shade: #f5f3ef;
+      --paper: #faf8f5;
+      --orange: #ff6a00;
+      --orange-soft: rgba(255, 106, 0, 0.12);
+      --orange-glow: rgba(255, 106, 0, 0.28);
+      --indigo: #4338ca;
+      --indigo-soft: rgba(67, 56, 202, 0.1);
+      --red: #dc2626;
+      --emerald: #059669;
+      --rule: rgba(13, 12, 11, 0.14);
+      --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+      --pill-bg: #0d0c0b;
+      --pill-fg: #ffffff;
+      --font-display: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--shade);
+      color: var(--fg);
+      font-family: var(--font-display);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* PRELOADER / BOOT */
+    .boot {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: var(--shade);
+      transition: opacity 0.5s var(--ease), visibility 0.5s;
+    }
+    .boot.done {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .boot-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--rule);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--orange);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .boot p {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--fg-faint);
+    }
+    .boot .bar {
+      width: 180px;
+      height: 2px;
+      background: var(--rule);
+      overflow: hidden;
+      border-radius: 1px;
+    }
+    .boot .bar i {
+      display: block;
+      height: 100%;
+      width: 100%;
+      background: var(--orange);
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+      transition: transform 0.1s linear;
+    }
+
+    /* 3D FORCE GRAPH STAGE BACKGROUND */
+    .stage {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 45%, #ffffff 0%, var(--shade) 80%);
+    }
+
+    #loginThreeContainer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    .stage-veil {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+      background:
+        linear-gradient(to bottom, rgba(245,243,239,0.65) 0%, rgba(245,243,239,0.15) 30%, rgba(245,243,239,0.15) 70%, rgba(245,243,239,0.8) 100%),
+        radial-gradient(90% 70% at 50% 50%, rgba(255,255,255,0) 0%, rgba(245,243,239,0.45) 100%);
+    }
+
+    .stage-grain {
+      position: absolute;
+      inset: -50%;
+      opacity: 0.07;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      z-index: 21;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.6'/></svg>");
+    }
+
+    /* HEADER CHROME */
+    .chrome {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: max(14px, calc(env(safe-area-inset-top, 0px) + 12px)) clamp(16px, 3.5vw, 48px) 14px;
+      background: linear-gradient(to bottom, rgba(245, 243, 239, 0.96) 0%, rgba(245, 243, 239, 0.8) 72%, rgba(245, 243, 239, 0) 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 106, 0, 0.12);
+      color: var(--orange);
+      letter-spacing: 0.06em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-link {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--fg);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-link:hover {
+      color: var(--orange);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 20px;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      color: #fff !important;
+      -webkit-text-fill-color: #fff !important;
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      white-space: nowrap;
+      border: 1px solid rgba(13, 12, 11, 0.18);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.15);
+      transition: transform 0.3s var(--ease), background 0.25s, box-shadow 0.25s;
+      cursor: pointer;
+    }
+    .pill:hover {
+      transform: translateY(-2px);
+      background: #ff6a00;
+      box-shadow: 0 8px 20px rgba(255, 106, 0, 0.35);
+    }
+    .pill-orange {
+      background: var(--orange);
+    }
+
+    /* FLOATING HUD & STATUS PILL */
+    .hud-telemetry {
+      position: fixed;
+      left: clamp(16px, 3.5vw, 48px);
+      bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 16px));
+      z-index: 45;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      pointer-events: none;
+    }
+    .hud-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--rule);
+      padding: 8px 14px;
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg-soft);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.6; }
+    }
+
+    /* LOGIN CARD CONTAINER */
+    .login-wrapper {
+      position: relative;
+      z-index: 30;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(90px, calc(env(safe-area-inset-top, 0px) + 70px)) 20px max(70px, calc(env(safe-area-inset-bottom, 0px) + 50px));
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--rule);
+      border-radius: 24px;
+      padding: 36px 38px;
+      box-shadow: 0 16px 48px rgba(13, 12, 11, 0.08), 0 2px 6px rgba(13, 12, 11, 0.04);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      animation: cardFadeUp 0.6s var(--ease) forwards;
+    }
+
+    @keyframes cardFadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 14px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(255, 106, 0, 0.09);
+      border: 1px solid rgba(255, 106, 0, 0.2);
+    }
+
+    .login-title {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      color: var(--fg);
+      line-height: 1.15;
+    }
+    .login-title em {
+      font-style: italic;
+      color: var(--orange);
+      font-weight: 400;
+    }
+
+    .login-sub {
+      font-size: 13.5px;
+      color: var(--fg-soft);
+      margin-top: 6px;
+      margin-bottom: 24px;
+      line-height: 1.45;
+    }
+
+    /* PERSONA SELECTOR */
+    .persona-selector-wrap {
+      margin-bottom: 22px;
+      background: rgba(245, 243, 239, 0.65);
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .persona-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--fg-faint);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .persona-chips {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .persona-chip {
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      padding: 8px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .persona-chip:hover {
+      border-color: var(--orange);
+      transform: translateY(-1px);
+    }
+    .persona-chip.active {
+      border-color: var(--orange);
+      background: rgba(255, 106, 0, 0.08);
+      box-shadow: 0 0 0 2px rgba(255, 106, 0, 0.2);
+    }
+    .persona-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg);
+      line-height: 1.2;
+    }
+    .persona-role {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--fg-faint);
+      letter-spacing: -0.02em;
+    }
+
+    /* FORM STYLES */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--fg);
+      margin-bottom: 6px;
+    }
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      color: var(--fg-faint);
+      pointer-events: none;
+    }
+    .form-input {
+      width: 100%;
+      height: 44px;
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 0 14px 0 40px;
+      font-size: 13.5px;
+      font-family: var(--font-mono);
+      color: var(--fg);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.15);
+    }
+
+    .form-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--fg-soft);
+      margin-bottom: 22px;
+    }
+    .checkbox-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .checkbox-wrap input {
+      accent-color: var(--orange);
+      border-radius: 4px;
+    }
+    .link-subtle {
+      color: var(--fg-soft);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .link-subtle:hover {
+      color: var(--orange);
+    }
+
+    /* AUTH PROGRESS BANNER */
+    .auth-banner {
+      display: none;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255, 106, 0, 0.08);
+      border: 1px solid rgba(255, 106, 0, 0.25);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--orange);
+      animation: pulseBanner 1.5s infinite alternate;
+    }
+    .auth-banner.show {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    @keyframes pulseBanner {
+      from { opacity: 0.85; }
+      to { opacity: 1; }
+    }
+
+    /* SSO DIVIDER */
+    .divider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--fg-faint);
+      font-size: 11.5px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .divider-row::before, .divider-row::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    .btn-sso {
+      width: 100%;
+      height: 44px;
+      border-radius: 999px;
+      border: 1px solid var(--rule);
+      background: #ffffff;
+      color: var(--fg);
+      font-size: 13.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-sso:hover {
+      background: #fbf9f6;
+      border-color: var(--orange);
+      transform: translateY(-1px);
+    }
+
+    /* FOOTER BADGE */
+    .card-footer-badge {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--rule);
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--fg-faint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 520px) {
+      .login-card {
+        padding: 28px 22px;
+      }
+      .persona-chips {
+        grid-template-columns: 1fr;
+      }
+      .hud-telemetry {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. PRELOADER -->
+  <div class="boot" id="boot">
+    <div class="boot-badge">TIGERGRAPH SECURITY GATEWAY • AGENTIC WORKSPACE AUTH</div>
+    <div class="bar"><i id="bootBar"></i></div>
+    <p id="bootPct">INITIALIZING SECURE CONTEXT 0%</p>
+  </div>
+
+  <!-- 2. FIXED 3D STAGE BACKGROUND -->
+  <div class="stage">
+    <div id="loginThreeContainer"></div>
+    <div class="stage-veil"></div>
+    <div class="stage-grain"></div>
+  </div>
+
+  <!-- 3. TOP CHROME -->
+  <header class="chrome">
+    <a href="/landing" class="brand-wrap">
+      <div class="brand-logo-svg">
+        <svg fill="none" height="34" viewBox="0 0 160 40" width="145" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="tgGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+              <stop offset="0%" stop-color="#FF7A18"></stop>
+              <stop offset="100%" stop-color="#FF4B00"></stop>
+            </linearGradient>
+            <linearGradient id="nodeGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+              <stop offset="0%" stop-color="#2563EB"></stop>
+              <stop offset="100%" stop-color="#1D4ED8"></stop>
+            </linearGradient>
+          </defs>
+          <g transform="translate(6, 4)">
+            <circle cx="16" cy="16" fill="#FFF7ED" r="15" stroke="#FED7AA" stroke-width="1.5"></circle>
+            <line stroke="#FF7A18" stroke-dasharray="2,2" stroke-width="1.5" x1="16" x2="8" y1="7" y2="21"></line>
+            <line stroke="#FF7A18" stroke-width="1.5" x1="16" x2="24" y1="7" y2="21"></line>
+            <line stroke="#2563EB" stroke-width="1.5" x1="8" x2="24" y1="21" y2="21"></line>
+            <line stroke="#FF7A18" stroke-width="1.5" x1="16" x2="16" y1="7" y2="25"></line>
+            <circle cx="16" cy="7" fill="url(#tgGrad)" r="3.5"></circle>
+            <circle cx="8" cy="21" fill="url(#tgGrad)" r="3"></circle>
+            <circle cx="24" cy="21" fill="url(#nodeGrad)" r="3"></circle>
+            <circle cx="16" cy="25" fill="#10B981" r="2.5"></circle>
+          </g>
+          <text fill="#0F172A" font-family="'Inter Tight', sans-serif" font-size="15" font-weight="800" letter-spacing="-0.03em" x="46" y="21">Tiger<tspan fill="#FF7A18">Graph</tspan></text>
+          <text fill="#64748B" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" letter-spacing="0.08em" x="46" y="32">FRAUD STUDIO</text>
+        </svg>
+      </div>
+      <span class="brand-tag">GSQL v3.9</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="/landing" class="nav-link">← Landing Page</a>
+      <a href="/dashboard" class="pill">Direct Cockpit Access →</a>
+    </div>
+  </header>
+
+  <!-- 4. FLOATING HUD TELEMETRY -->
+  <div class="hud-telemetry">
+    <div class="hud-card">
+      <span class="status-dot"></span>
+      <span>GSQL Engine Online • 42ms</span>
+    </div>
+    <div class="hud-card">
+      <span style="color: var(--orange); font-weight:700;">MCP PORT: 8142</span>
+      <span>LangGraph Orchestrator</span>
+    </div>
+  </div>
+
+  <!-- 5. MAIN LOGIN VIEWPORT -->
+  <main class="login-wrapper">
+    <div class="login-card">
+      
+      <div class="eyebrow">
+        <span>•</span> SECURE ACCESS • AGENTIC WORKSPACE
+      </div>
+      
+      <h1 class="login-title">Sign in to <em>Fraud Studio</em></h1>
+      <p class="login-sub">
+        Autonomous graph traversal, GraphRAG policy reasoning, and defensible FinCEN SAR compliance.
+      </p>
+
+      <!-- One-Click Demo Persona Selector -->
+      <div class="persona-selector-wrap">
+        <div class="persona-label">
+          <span>QUICK-SELECT DEMO PERSONA</span>
+          <span style="color: var(--orange);">ONE-CLICK FILL</span>
+        </div>
+        <div class="persona-chips">
+          <div class="persona-chip active" id="chipElena" onclick="selectPersona('elena')">
+            <span class="persona-name">Elena Vance</span>
+            <span class="persona-role">Squad Alpha Lead</span>
+          </div>
+          <div class="persona-chip" id="chipMarcus" onclick="selectPersona('marcus')">
+            <span class="persona-name">Marcus Vance</span>
+            <span class="persona-role">Victim CUST_8291</span>
+          </div>
+          <div class="persona-chip" id="chipAuditor" onclick="selectPersona('auditor')">
+            <span class="persona-name">SAR Auditor</span>
+            <span class="persona-role">FinCEN Approver</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auth Form -->
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">Analyst Work Email / Identity Key</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <input 
+              type="text" 
+              id="loginEmail" 
+              class="form-input" 
+              value="elena.vance@tigergraph.internal" 
+              placeholder="analyst@tigergraph.internal"
+              required 
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPass">MFA Security Token / Hardware PIN</label>
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <input 
+              type="password" 
+              id="loginPass" 
+              class="form-input" 
+              value="••••••••••••" 
+              placeholder="Enter 6-digit MFA or passkey"
+              required 
+            />
+          </div>
+        </div>
+
+        <div class="form-meta-row">
+          <label class="checkbox-wrap">
+            <input type="checkbox" id="chkRemember" checked />
+            <span>Remember workstation for 30 days</span>
+          </label>
+          <a href="javascript:void(0)" onclick="alert('Demo Mode: Credentials auto-authenticated via TigerGraph GSQL gateway.')" class="link-subtle">Need key help?</a>
+        </div>
+
+        <!-- Dynamic Auth Verification Banner -->
+        <div class="auth-banner" id="authBanner">
+          <svg class="animate-spin" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+            <path d="M12 2a10 10 0 0 1 10 10"></path>
+          </svg>
+          <span id="authBannerText">Validating GSQL cryptographic key...</span>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="btnSubmitLogin" class="pill pill-orange" style="width: 100%; height: 46px; font-size: 14.5px;">
+          Authorize &amp; Launch Cockpit &rarr;
+        </button>
+
+      </form>
+
+      <!-- SSO Divider -->
+      <div class="divider-row">
+        <span>or enterprise identity</span>
+      </div>
+
+      <!-- SSO Option -->
+      <button type="button" class="btn-sso" onclick="quickEnterpriseAuth()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        <span>Okta / Enterprise SAML 2.0</span>
+      </button>
+
+      <!-- Card Security Footer -->
+      <div class="card-footer-badge">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 14 14"></polyline>
+        </svg>
+        <span>GSQL Cryptographic Handshake • 256-Bit Key Exchange • FIPS-140-3</span>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- SCRIPT FOR PRELOADER, 3D KINETIC GRAPH BACKGROUND, & LOGIN INTERACTION -->
+  <script>
+  (function(){
+    "use strict";
+
+    // 1. Boot sequence
+    var boot = document.getElementById("boot");
+    var bootBar = document.getElementById("bootBar");
+    var bootPct = document.getElementById("bootPct");
+    var bootCount = 0;
+
+    function runBoot(){
+      bootCount += 0.08;
+      if (bootCount >= 1){
+        bootBar.style.transform = "scaleX(1)";
+        bootPct.textContent = "SESSION KEY VERIFIED 100%";
+        setTimeout(function(){
+          boot.classList.add("done");
+        }, 250);
+      } else {
+        bootBar.style.transform = "scaleX(" + bootCount + ")";
+        bootPct.textContent = "INITIALIZING SECURE CONTEXT " + Math.round(bootCount * 100) + "%";
+        setTimeout(runBoot, 30);
+      }
+    }
+    runBoot();
+
+    // 2. Demo Persona Selector
+    var personas = {
+      elena: {
+        email: "elena.vance@tigergraph.internal",
+        pass: "••••••••••••",
+        role: "Senior Fraud Lead • Squad Alpha"
+      },
+      marcus: {
+        email: "marcus.vance@fintech-user.com",
+        pass: "••••••••••••",
+        role: "Victim Cardholder • CUST_8291"
+      },
+      auditor: {
+        email: "fincen.compliance@tigergraph.internal",
+        pass: "••••••••••••",
+        role: "SAR Regulatory Approver • L2"
+      }
+    };
+
+    window.selectPersona = function(key){
+      document.querySelectorAll(".persona-chip").forEach(function(c){ c.classList.remove("active"); });
+      var activeEl = document.getElementById("chip" + key.charAt(0).toUpperCase() + key.slice(1));
+      if (activeEl) activeEl.classList.add("active");
+
+      var p = personas[key] || personas.elena;
+      document.getElementById("loginEmail").value = p.email;
+      document.getElementById("loginPass").value = p.pass;
+    };
+
+    // 3. Login submission handler
+    window.handleLogin = function(e){
+      if (e) e.preventDefault();
+      var banner = document.getElementById("authBanner");
+      var bannerText = document.getElementById("authBannerText");
+      var btn = document.getElementById("btnSubmitLogin");
+
+      banner.classList.add("show");
+      btn.disabled = true;
+      btn.style.opacity = "0.7";
+      btn.innerText = "Authorizing...";
+
+      bannerText.innerText = "[1/3] Validating GSQL cryptographic key...";
+      
+      setTimeout(function(){
+        bannerText.innerText = "[2/3] Checking LangGraph orchestration permissions...";
+      }, 400);
+
+      setTimeout(function(){
+        bannerText.innerText = "[3/3] Session token granted (32ms)! Launching Threat Cockpit...";
+      }, 850);
+
+      setTimeout(function(){
+        window.location.href = "/dashboard";
+      }, 1250);
+    };
+
+    window.quickEnterpriseAuth = function(){
+      window.handleLogin();
+    };
+
+    // 4. Background 3D Force-Directed Knowledge Graph
+    var container = document.getElementById('loginThreeContainer');
+    if (!container || typeof THREE === "undefined") return;
+
+    var width = container.clientWidth || window.innerWidth;
+    var height = container.clientHeight || window.innerHeight;
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
+    camera.position.set(0, 15, 65);
+
+    var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    container.appendChild(renderer.domElement);
+
+    // Lighting
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
+    scene.add(ambientLight);
+
+    var pointLight1 = new THREE.PointLight(0xff6a00, 2.5, 120);
+    pointLight1.position.set(20, 25, 30);
+    scene.add(pointLight1);
+
+    var pointLight2 = new THREE.PointLight(0x3b82f6, 2.0, 100);
+    pointLight2.position.set(-25, -15, 20);
+    scene.add(pointLight2);
+
+    var graphGroup = new THREE.Group();
+    scene.add(graphGroup);
+
+    var nodesData = [
+      { id: 'CUST_8291', label: 'Victim Customer', color: 0x3b82f6, size: 2.2, pos: new THREE.Vector3(-18, 6, 2) },
+      { id: 'DEV_293', label: 'Compromised Proxy', color: 0xef4444, size: 2.0, pos: new THREE.Vector3(-6, 14, -4) },
+      { id: 'IP_94_102', label: 'TOR Relay / ASN', color: 0xf97316, size: 1.6, pos: new THREE.Vector3(-2, 22, -10) },
+      { id: 'TXN_7823', label: 'High Velocity Tx ($18.4k)', color: 0xff6a00, size: 2.6, pos: new THREE.Vector3(0, 0, 4) },
+      { id: 'ACCT_4421', label: 'Mule Ring A', color: 0xef4444, size: 2.1, pos: new THREE.Vector3(14, 8, -6) },
+      { id: 'ACCT_9923', label: 'Mule Ring B', color: 0xdc2626, size: 2.0, pos: new THREE.Vector3(18, -6, 2) },
+      { id: 'CRYPTO_EX', label: 'Liquidity Off-Ramp', color: 0x8b5cf6, size: 2.5, pos: new THREE.Vector3(26, -16, -2) },
+      { id: 'CASE_0872', label: 'Vector Memory Match (98%)', color: 0x10b981, size: 1.8, pos: new THREE.Vector3(-12, -12, 6) },
+      { id: 'DEVICE_FPRINT', label: 'Hardware Hash collision', color: 0x06b6d4, size: 1.5, pos: new THREE.Vector3(-22, -4, -8) },
+      { id: 'SUBGRAPH_GSQL', label: 'GSQL Community Cluster', color: 0xff8c38, size: 1.7, pos: new THREE.Vector3(8, -14, 10) }
+    ];
+
+    var edgesData = [
+      { from: 0, to: 1, alert: true },
+      { from: 1, to: 2, alert: true },
+      { from: 0, to: 3, alert: true },
+      { from: 1, to: 3, alert: true },
+      { from: 3, to: 4, alert: true },
+      { from: 3, to: 5, alert: true },
+      { from: 4, to: 6, alert: true },
+      { from: 5, to: 6, alert: true },
+      { from: 0, to: 7, alert: false },
+      { from: 1, to: 8, alert: false },
+      { from: 7, to: 8, alert: false },
+      { from: 5, to: 9, alert: false },
+      { from: 4, to: 9, alert: false }
+    ];
+
+    var sphereGeo = new THREE.SphereGeometry(1, 32, 32);
+    var nodeMeshes = [];
+    var haloMeshes = [];
+
+    nodesData.forEach(function(node){
+      var mat = new THREE.MeshPhongMaterial({
+        color: node.color,
+        emissive: node.color,
+        emissiveIntensity: 0.35,
+        shininess: 80
+      });
+      var mesh = new THREE.Mesh(sphereGeo, mat);
+      mesh.scale.set(node.size, node.size, node.size);
+      mesh.position.copy(node.pos);
+      mesh.userData = { id: node.id, label: node.label, baseScale: node.size, basePos: node.pos.clone() };
+      graphGroup.add(mesh);
+      nodeMeshes.push(mesh);
+
+      var ringGeo = new THREE.RingGeometry(node.size * 1.3, node.size * 1.5, 32);
+      var ringMat = new THREE.MeshBasicMaterial({ color: node.color, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
+      var ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.position.copy(node.pos);
+      ring.rotation.x = Math.PI / 2;
+      graphGroup.add(ring);
+      haloMeshes.push(ring);
+    });
+
+    var edgeParticles = [];
+    edgesData.forEach(function(edge){
+      var p1 = nodesData[edge.from].pos;
+      var p2 = nodesData[edge.to].pos;
+
+      var points = [p1, p2];
+      var lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+      var lineMat = new THREE.LineBasicMaterial({
+        color: edge.alert ? 0xff6a00 : 0x94a3b8,
+        transparent: true,
+        opacity: edge.alert ? 0.65 : 0.28
+      });
+      var line = new THREE.Line(lineGeo, lineMat);
+      graphGroup.add(line);
+
+      var partGeo = new THREE.SphereGeometry(0.35, 12, 12);
+      var partMat = new THREE.MeshBasicMaterial({ color: edge.alert ? 0xff4d00 : 0x38bdf8, transparent: true, opacity: 0.95 });
+      var particle = new THREE.Mesh(partGeo, partMat);
+      graphGroup.add(particle);
+      edgeParticles.push({
+        mesh: particle,
+        from: p1,
+        to: p2,
+        t: Math.random(),
+        speed: 0.006 + Math.random() * 0.007
+      });
+    });
+
+    // Cyber dust
+    var dustCount = 180;
+    var dustGeo = new THREE.BufferGeometry();
+    var dustPositions = new Float32Array(dustCount * 3);
+    for (var i = 0; i < dustCount * 3; i += 3) {
+      dustPositions[i] = (Math.random() - 0.5) * 120;
+      dustPositions[i + 1] = (Math.random() - 0.5) * 90;
+      dustPositions[i + 2] = (Math.random() - 0.5) * 80;
+    }
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+    var dustMat = new THREE.PointsMaterial({ color: 0xff6a00, size: 0.8, transparent: true, opacity: 0.35 });
+    var dustPoints = new THREE.Points(dustGeo, dustMat);
+    scene.add(dustPoints);
+
+    // Mouse parallax
+    var mouseX = 0, mouseY = 0;
+    var targetRotX = 0, targetRotY = 0;
+
+    window.addEventListener('mousemove', function(e){
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+      targetRotY = mouseX * 0.45;
+      targetRotX = -mouseY * 0.3;
+    }, { passive: true });
+
+    window.addEventListener('resize', function(){
+      var w = container.clientWidth || window.innerWidth;
+      var h = container.clientHeight || window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+
+    var clock = new THREE.Clock();
+    function animate(){
+      requestAnimationFrame(animate);
+      var elapsed = clock.getElapsedTime();
+
+      graphGroup.rotation.y += (targetRotY - graphGroup.rotation.y) * 0.04 + 0.002;
+      graphGroup.rotation.x += (targetRotX - graphGroup.rotation.x) * 0.04;
+
+      nodeMeshes.forEach(function(mesh, idx){
+        var pulse = 1 + 0.08 * Math.sin(elapsed * 2.8 + idx * 0.9);
+        mesh.scale.set(mesh.userData.baseScale * pulse, mesh.userData.baseScale * pulse, mesh.userData.baseScale * pulse);
+        mesh.position.y = mesh.userData.basePos.y + Math.sin(elapsed * 1.5 + idx) * 0.4;
+      });
+
+      haloMeshes.forEach(function(ring, idx){
+        ring.rotation.z += 0.015 * (idx % 2 === 0 ? 1 : -1);
+        ring.position.y = nodeMeshes[idx].position.y;
+        var ringScale = 1 + 0.15 * Math.sin(elapsed * 3.2 + idx);
+        ring.scale.set(ringScale, ringScale, 1);
+      });
+
+      edgeParticles.forEach(function(ep){
+        ep.t += ep.speed;
+        if (ep.t > 1) ep.t = 0;
+        ep.mesh.position.lerpVectors(ep.from, ep.to, ep.t);
+      });
+
+      dustPoints.rotation.y = elapsed * 0.02;
+      dustPoints.rotation.x = elapsed * 0.01;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+  })();
+  </script>
+</body>
+</html>

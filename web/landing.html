@@ -1,0 +1,2504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+  <title>TigerGraph Fraud Studio — Agentic Subgraph Traversal</title>
+  <meta name="description" content="Autonomous AI Agent for real-time fraud investigation, multi-hop GSQL graph traversal, GraphRAG governance, and FinCEN SAR reporting."/>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+
+  <style>
+    :root {
+      --fg: #0d0c0b;
+      --fg-heading: #0f172a;
+      --fg-soft: rgba(13, 12, 11, 0.72);
+      --fg-faint: rgba(13, 12, 11, 0.44);
+      --shade: #f5f3ef;
+      --paper: #faf8f5;
+      --orange: #ff6a00;
+      --orange-bright: #ff3b00;
+      --orange-soft: rgba(255, 106, 0, 0.12);
+      --orange-glow: rgba(255, 106, 0, 0.28);
+      --indigo: #4338ca;
+      --indigo-soft: rgba(67, 56, 202, 0.1);
+      --red: #dc2626;
+      --emerald: #059669;
+      --rule: rgba(13, 12, 11, 0.14);
+      --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+      --pill-bg: #0d0c0b;
+      --pill-fg: #ffffff;
+      --font-display: 'Inter Tight', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      background: var(--shade);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--shade);
+      color: var(--fg);
+      font-family: var(--font-display);
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* PRELOADER / BOOT */
+    .boot {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: var(--shade);
+      transition: opacity 0.6s var(--ease), visibility 0.6s;
+    }
+    .boot.done {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .boot-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--rule);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--orange);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .boot p {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--fg-faint);
+    }
+    .boot .bar {
+      width: 180px;
+      height: 2px;
+      background: var(--rule);
+      overflow: hidden;
+      border-radius: 1px;
+    }
+    .boot .bar i {
+      display: block;
+      height: 100%;
+      width: 100%;
+      background: var(--orange);
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+      transition: transform 0.1s linear;
+    }
+
+    /* SCROLL METER */
+    .meter {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 60;
+      height: 3px;
+      width: 100%;
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+      background: linear-gradient(90deg, var(--orange), #ff3b00);
+      will-change: transform;
+    }
+
+    /* HEADER CHROME */
+    .chrome {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: max(14px, calc(env(safe-area-inset-top, 0px) + 12px)) clamp(16px, 3.5vw, 48px) 14px;
+      background: linear-gradient(to bottom, rgba(245, 243, 239, 0.96) 0%, rgba(245, 243, 239, 0.85) 75%, rgba(245, 243, 239, 0) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-logo-svg {
+      display: flex;
+      align-items: center;
+    }
+    .brand-title {
+      font-size: 15px;
+      letter-spacing: -0.015em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 106, 0, 0.12);
+      color: var(--orange);
+      letter-spacing: 0.06em;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: clamp(14px, 2.5vw, 28px);
+    }
+    .nav a:not(.pill) {
+      color: var(--fg);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      opacity: 0.85;
+      transition: opacity 0.25s var(--ease), color 0.25s;
+    }
+    .nav a:not(.pill):hover {
+      opacity: 1;
+      color: var(--orange);
+    }
+    .nav .nav-login-btn {
+      font-weight: 600;
+      color: var(--fg);
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--rule);
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: all 0.2s;
+    }
+    .nav .nav-login-btn:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+      transform: translateY(-1px);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 42px;
+      padding: 0 22px;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      color: #fff !important;
+      -webkit-text-fill-color: #fff !important;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      white-space: nowrap;
+      border: 1px solid rgba(13, 12, 11, 0.18);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.15);
+      transition: transform 0.25s var(--ease), background 0.25s, box-shadow 0.25s;
+      cursor: pointer;
+    }
+    .pill:hover {
+      transform: translateY(-2px);
+      background: #ff6a00;
+      box-shadow: 0 8px 24px rgba(255, 106, 0, 0.35);
+    }
+    .pill-orange {
+      background: var(--orange);
+    }
+
+    /* INTERACTIVE TOP TIMELINE / HOP STEPPER */
+    .hop-stepper-wrap {
+      position: fixed;
+      top: 68px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 48;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .step-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--fg-soft);
+      font-size: 11.5px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+    .step-chip:hover {
+      color: var(--orange);
+      background: rgba(255, 106, 0, 0.06);
+    }
+    .step-chip.active {
+      background: #0d0c0b;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .step-chip.active .step-dot {
+      background: #ff6a00;
+      box-shadow: 0 0 0 2px rgba(255, 106, 0, 0.4);
+    }
+    .step-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--fg-faint);
+    }
+
+    /* FIXED CANVAS STAGE & PROCEDURAL GRAPH ENGINE */
+    .stage {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 45%, #ffffff 0%, var(--shade) 80%);
+    }
+
+    #threejs-container-ANIMATION_16 {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    #graphCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    /* Ambient atmospheric overlays */
+    .stage-veil {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+      background:
+        linear-gradient(to bottom, rgba(245,243,239,0.55) 0%, rgba(245,243,239,0.05) 25%, rgba(245,243,239,0.05) 75%, rgba(245,243,239,0.75) 100%),
+        radial-gradient(90% 70% at 50% 50%, rgba(255,255,255,0) 0%, rgba(245,243,239,0.35) 100%);
+    }
+
+    .stage-grain {
+      position: absolute;
+      inset: -50%;
+      opacity: 0.08;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      z-index: 21;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.6'/></svg>");
+    }
+
+    /* FLOATING HUD & STATUS PILL (FIXED) */
+    .hud-telemetry {
+      position: fixed;
+      left: clamp(16px, 3.5vw, 48px);
+      bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 16px));
+      z-index: 45;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      pointer-events: none;
+    }
+    .hud-card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--rule);
+      padding: 8px 14px;
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg-soft);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.6; }
+    }
+
+    /* 3D NODE INSPECTOR TOOLTIP */
+    .node-inspector-tip {
+      position: fixed;
+      z-index: 70;
+      pointer-events: none;
+      display: none;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(13, 12, 11, 0.94);
+      color: #ffffff;
+      border: 1px solid rgba(255, 106, 0, 0.4);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      font-size: 11.5px;
+      line-height: 1.4;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transform: translate(12px, -50%);
+      transition: opacity 0.15s ease;
+    }
+
+    /* PANELS LAYER */
+    .panels {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      pointer-events: none;
+    }
+    .panel {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: max(110px, calc(env(safe-area-inset-top, 0px) + 90px)) clamp(16px, 4vw, 48px) max(85px, calc(env(safe-area-inset-bottom, 0px) + 70px));
+      opacity: 0;
+      will-change: opacity, transform;
+    }
+
+    /* DUAL-PANE FROSTED GLASS EDITORIAL HUD CARD */
+    .panel-editorial-card {
+      max-width: 1240px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 24px 60px -12px rgba(13, 12, 11, 0.08),
+        0 2px 8px rgba(13, 12, 11, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      border-radius: 32px;
+      padding: clamp(26px, 3.2vw, 42px);
+      position: relative;
+      pointer-events: auto;
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: clamp(24px, 3vw, 40px);
+      align-items: stretch;
+      text-align: left;
+      transition: transform 0.3s var(--ease), box-shadow 0.3s;
+    }
+    .panel-editorial-card:hover {
+      box-shadow:
+        0 32px 75px -12px rgba(255, 106, 0, 0.10),
+        0 4px 12px rgba(13, 12, 11, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+    }
+
+    /* LEFT PANE: COMMANDING EDITORIAL NARRATIVE */
+    .editorial-narrative {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 14px;
+      padding: 5px 16px;
+      border-radius: 999px;
+      background: rgba(255, 106, 0, 0.09);
+      border: 1px solid rgba(255, 106, 0, 0.25);
+      width: fit-content;
+    }
+    .eyebrow-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--orange);
+      box-shadow: 0 0 0 2px rgba(255, 106, 0, 0.35);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    /* HERO COMMANDING DISPLAY HEADING */
+    .hero-heading {
+      font-family: var(--font-display) !important;
+      font-weight: 850 !important;
+      font-size: clamp(32px, 3.8vw, 56px) !important;
+      line-height: 1.02 !important;
+      letter-spacing: -0.04em !important;
+      color: var(--fg-heading) !important;
+      margin-bottom: 16px;
+      text-wrap: balance;
+    }
+    .hero-gradient-text {
+      font-style: italic;
+      font-weight: 800;
+      color: #ff6a00;
+      background: linear-gradient(135deg, #ff6a00 0%, #ff3b00 50%, #ea580c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 14px rgba(255, 106, 0, 0.35));
+      display: inline-block;
+      transition: all 0.2s;
+    }
+
+    /* INTERACTIVE SUBTITLE & ENTITY TAGS */
+    .hero-subtext {
+      font-size: clamp(14.5px, 1.1vw, 16.5px) !important;
+      line-height: 1.6 !important;
+      letter-spacing: -0.01em !important;
+      color: #334155 !important;
+      font-weight: 450;
+      margin-bottom: 20px;
+      text-wrap: pretty;
+    }
+
+    .graph-entity-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(13, 12, 11, 0.05);
+      border: 1px solid rgba(13, 12, 11, 0.14);
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+      font-weight: 600;
+      color: #0f172a;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .graph-entity-chip:hover {
+      background: #ff6a00;
+      border-color: #ff6a00;
+      color: #ffffff !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 106, 0, 0.35);
+    }
+    .graph-entity-chip.alert-chip {
+      color: #dc2626;
+      border-color: rgba(220, 38, 38, 0.3);
+      background: rgba(220, 38, 38, 0.08);
+    }
+    .graph-entity-chip.alert-chip:hover {
+      background: #dc2626;
+      color: #ffffff !important;
+      border-color: #dc2626;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+    }
+
+    /* INTERACTIVE STEP SCRUBBER PILLS */
+    .hop-scrubber {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .scrub-pill {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(13, 12, 11, 0.05);
+      border: 1px solid var(--rule);
+      color: var(--fg-soft);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .scrub-pill:hover {
+      color: var(--orange);
+      border-color: var(--orange);
+      background: rgba(255, 106, 0, 0.08);
+    }
+    .scrub-pill.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    }
+    .scrub-pill.active .scrub-dot {
+      background: var(--orange);
+    }
+    .scrub-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(13, 12, 11, 0.4);
+    }
+
+    /* METRIC STRIP ATTACHED TO NARRATIVE */
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .metric-card {
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      padding: 10px 14px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .metric-card:hover {
+      border-color: var(--orange);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(255, 106, 0, 0.12);
+    }
+    .metric-val {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--fg-heading);
+      line-height: 1;
+    }
+    .metric-val.alert { color: var(--red); }
+    .metric-val.highlight { color: var(--orange); }
+    .metric-lbl {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--fg-faint);
+      line-height: 1.2;
+      margin-top: 4px;
+    }
+
+    /* ACTION CTA ROW */
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+    .cta-row .pill {
+      height: 44px;
+      padding: 0 24px;
+      font-size: 13.5px;
+    }
+    .btn-secondary {
+      height: 44px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 1px solid var(--rule);
+      background: #ffffff;
+      color: var(--fg);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      cursor: pointer;
+    }
+    .btn-secondary:hover {
+      background: #fdfaf6;
+      border-color: var(--orange);
+      transform: translateY(-2px);
+    }
+
+    .btn-simulate-traversal {
+      height: 44px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 106, 0, 0.35);
+      background: linear-gradient(135deg, rgba(255, 106, 0, 0.12) 0%, rgba(255, 59, 0, 0.06) 100%);
+      color: var(--orange);
+      font-size: 12.5px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-simulate-traversal:hover {
+      background: var(--orange);
+      color: #ffffff;
+      box-shadow: 0 8px 24px rgba(255, 106, 0, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* RIGHT PANE: INTERACTIVE SUBGRAPH & GSQL INTELLIGENCE TERMINAL */
+    .editorial-terminal {
+      background: #090d16;
+      border: 1px solid rgba(255, 106, 0, 0.3);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+      position: relative;
+    }
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .term-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .term-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+    .term-dot.r { background: #ef4444; }
+    .term-dot.y { background: #f59e0b; }
+    .term-dot.g { background: #10b981; }
+    .term-tabs {
+      display: flex;
+      gap: 4px;
+    }
+    .term-tab {
+      padding: 5px 11px;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .term-tab:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .term-tab.active {
+      color: #ff6a00;
+      background: rgba(255, 106, 0, 0.15);
+    }
+    .term-body {
+      padding: 18px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .term-tab-pane {
+      display: none;
+    }
+    .term-tab-pane.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* TERMINAL TAB 1: VISUAL NODE PIPELINE */
+    .pipe-step-node {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+    .pipe-step-node:hover {
+      border-color: rgba(255, 106, 0, 0.4);
+      background: rgba(255, 106, 0, 0.06);
+    }
+    .pipe-step-node.active-step {
+      border-color: var(--orange);
+      background: rgba(255, 106, 0, 0.12);
+    }
+    .pipe-icon-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .pipe-icon-badge.blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .pipe-icon-badge.red { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .pipe-icon-badge.purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+    .pipe-icon-badge.orange { background: rgba(255, 106, 0, 0.2); color: #ff8533; }
+    .pipe-icon-badge.green { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .pipe-step-info {
+      flex: 1;
+    }
+    .pipe-step-title {
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 11.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pipe-step-desc {
+      font-size: 10px;
+      color: #94a3b8;
+    }
+
+    /* CODE BOX FOR GSQL */
+    .gsql-code-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.55;
+      color: #f1f5f9;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+    .gsql-code-box .kw { color: #f43f5e; font-weight: 600; }
+    .gsql-code-box .fn { color: #38bdf8; }
+    .gsql-code-box .str { color: #34d399; }
+    .gsql-code-box .cm { color: #64748b; font-style: italic; }
+
+    .term-footer-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 10.5px;
+    }
+    .btn-term-action {
+      background: rgba(255, 106, 0, 0.16);
+      border: 1px solid rgba(255, 106, 0, 0.4);
+      color: #ff8533;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-term-action:hover {
+      background: #ff6a00;
+      color: #ffffff;
+      border-color: #ff6a00;
+    }
+
+    /* FLOATING ENTITY HOVER POPOVER */
+    .entity-hover-popover {
+      position: fixed;
+      z-index: 95;
+      pointer-events: none;
+      display: none;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(255, 106, 0, 0.45);
+      border-radius: 14px;
+      padding: 12px 16px;
+      color: #ffffff;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.45;
+      max-width: 320px;
+      transform: translate(14px, 14px);
+      transition: opacity 0.15s ease;
+    }
+    .entity-hover-popover .pop-title {
+      font-weight: 700;
+      color: #ff8533;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .entity-hover-popover .pop-attr {
+      font-size: 10.5px;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+
+    /* AUDIO TOGGLE BUTTON IN NAV */
+    .audio-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      color: var(--fg);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .audio-toggle-btn:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+    .audio-toggle-btn.muted {
+      opacity: 0.6;
+    }
+
+    /* LIVE TRAVERSAL INTERACTIVE TOAST BANNER */
+    .traversal-live-toast {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 9px 18px;
+      border-radius: 999px;
+      background: rgba(255, 106, 0, 0.09);
+      border: 1px solid rgba(255, 106, 0, 0.35);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #0f172a;
+      box-shadow: 0 4px 16px rgba(255, 106, 0, 0.12);
+      animation: toastPop 0.3s ease forwards;
+    }
+    .traversal-live-toast.active {
+      display: inline-flex;
+    }
+    @keyframes toastPop {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pulse-spark {
+      font-size: 13px;
+      animation: pulseSpark 1.2s infinite;
+    }
+    @keyframes pulseSpark {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* FOOTER */
+    .foot {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      display: flex;
+      justify-content: center;
+      padding: 14px clamp(16px, 4vw, 24px) max(14px, calc(env(safe-area-inset-bottom, 0px) + 10px));
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.4;
+      letter-spacing: 0.04em;
+      color: var(--fg-faint);
+      text-align: center;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(245, 243, 239, 0.95) 0%, rgba(245, 243, 239, 0.7) 70%, rgba(245, 243, 239, 0) 100%);
+    }
+
+    /* SCROLL TRACK */
+    .track {
+      position: relative;
+      z-index: 1;
+      height: 580vh;
+      min-height: 3600px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .panel-editorial-card {
+        grid-template-columns: 1fr;
+        max-width: 680px;
+        padding: 24px;
+        border-radius: 24px;
+      }
+      .editorial-terminal {
+        margin-top: 14px;
+      }
+    }
+    @media (max-width: 860px) {
+      .nav a:not(.pill) { display: none; }
+      .nav .nav-login-btn { display: inline-flex !important; }
+      .hud-telemetry { display: none; }
+      .hop-stepper-wrap { display: none; }
+      .hero-heading { font-size: clamp(30px, 7vw, 44px) !important; }
+      .hero-subtext { font-size: 14.5px !important; }
+      .metric-strip { gap: 6px; }
+      .metric-card { padding: 8px 10px; }
+      .panel-editorial-card { padding: 20px 16px; }
+    }
+    @media (max-width: 480px) {
+      .brand-tag { display: none; }
+      .nav .pill { height: 36px; padding: 0 14px; font-size: 13px; }
+      .hero-heading { font-size: 26px !important; }
+      .cta-row .pill, .btn-secondary, .btn-simulate-traversal { width: 100%; max-width: 300px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. PRELOADER -->
+  <div class="boot" id="boot">
+    <div class="boot-badge">TIGERGRAPH MCP • AGENTIC GRAPH TRAVERSAL</div>
+    <div class="bar"><i id="bootBar"></i></div>
+    <p id="bootPct">INITIALIZING TOPOLOGY 0%</p>
+  </div>
+
+  <!-- 2. SCROLL PROGRESS HAIRLINE -->
+  <i class="meter" id="meter"></i>
+
+  <!-- 3. TOP CHROME -->
+  <header class="chrome">
+    <a href="/landing" class="brand-wrap">
+      <div class="brand-logo-svg">
+        <svg fill="none" height="36" viewBox="0 0 160 40" width="145" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="tgGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+              <stop offset="0%" stop-color="#FF7A18"></stop>
+              <stop offset="100%" stop-color="#FF4B00"></stop>
+            </linearGradient>
+            <linearGradient id="nodeGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+              <stop offset="0%" stop-color="#2563EB"></stop>
+              <stop offset="100%" stop-color="#1D4ED8"></stop>
+            </linearGradient>
+          </defs>
+          <g transform="translate(6, 4)">
+            <circle cx="16" cy="16" fill="#FFF7ED" r="15" stroke="#FED7AA" stroke-width="1.5"></circle>
+            <line stroke="#FF7A18" stroke-dasharray="2,2" stroke-width="1.5" x1="16" x2="8" y1="7" y2="21"></line>
+            <line stroke="#FF7A18" stroke-width="1.5" x1="16" x2="24" y1="7" y2="21"></line>
+            <line stroke="#2563EB" stroke-width="1.5" x1="8" x2="24" y1="21" y2="21"></line>
+            <line stroke="#FF7A18" stroke-width="1.5" x1="16" x2="16" y1="7" y2="25"></line>
+            <circle cx="16" cy="7" fill="url(#tgGrad)" r="3.5"></circle>
+            <circle cx="8" cy="21" fill="url(#tgGrad)" r="3"></circle>
+            <circle cx="24" cy="21" fill="url(#nodeGrad)" r="3"></circle>
+            <circle cx="16" cy="25" fill="#10B981" r="2.5"></circle>
+          </g>
+          <text fill="#0F172A" font-family="'Inter Tight', sans-serif" font-size="15" font-weight="800" letter-spacing="-0.03em" x="46" y="21">Tiger<tspan fill="#FF7A18">Graph</tspan></text>
+          <text fill="#64748B" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" letter-spacing="0.08em" x="46" y="32">FRAUD STUDIO</text>
+        </svg>
+      </div>
+      <span class="brand-tag">GSQL v3.9</span>
+    </a>
+
+    <nav class="nav">
+      <a href="javascript:void(0)" onclick="scrollToHop(0)">Topology</a>
+      <a href="javascript:void(0)" onclick="scrollToHop(1)">Agent Loop</a>
+      <a href="javascript:void(0)" onclick="scrollToHop(1)">Sufficiency</a>
+      <a href="javascript:void(0)" onclick="scrollToHop(2)">HITL Governance</a>
+      <button class="audio-toggle-btn" id="btnAudioToggle" onclick="toggleAudio()" title="Tactile Synth Audio"><span>🔊 Audio: ON</span></button>
+      <a href="/login" class="nav-login-btn">Sign In</a>
+      <a class="pill" href="/dashboard">Launch Cockpit →</a>
+    </nav>
+  </header>
+
+  <!-- INTERACTIVE TIMELINE HOP STEPPER BAR -->
+  <div class="hop-stepper-wrap" id="hopStepper">
+    <button class="step-chip active" id="stepChip0" onclick="scrollToHop(0)">
+      <span class="step-dot"></span>
+      <span>HOP 01 Ingestion</span>
+    </button>
+    <button class="step-chip" id="stepChip1" onclick="scrollToHop(1)">
+      <span class="step-dot"></span>
+      <span>HOP 02 Reasoning</span>
+    </button>
+    <button class="step-chip" id="stepChip2" onclick="scrollToHop(2)">
+      <span class="step-dot"></span>
+      <span>HOP 03 Governance</span>
+    </button>
+  </div>
+
+  <!-- 4. FIXED STAGE: PROCEDURAL SCRUBBED GRAPH VISUALIZATION & 3D FORCE GRAPH -->
+  <div class="stage">
+    <div id="threejs-container-ANIMATION_16"></div>
+    <canvas id="graphCanvas"></canvas>
+    <div class="stage-veil"></div>
+    <div class="stage-grain"></div>
+  </div>
+
+  <!-- FIXED HUD TELEMETRY CHIP -->
+  <div class="hud-telemetry">
+    <div class="hud-card">
+      <span class="status-dot"></span>
+      <span>GSQL Engine Online • 42ms</span>
+    </div>
+    <div class="hud-card">
+      <span style="color: var(--orange); font-weight:700;">MCP PORT: 8142</span>
+      <span>LangGraph Orchestrator</span>
+    </div>
+  </div>
+
+  <!-- 3D NODE INSPECTOR TOOLTIP -->
+  <div class="node-inspector-tip" id="nodeInspectorTip"></div>
+
+  <!-- FLOATING RICH ENTITY DATA HOVER POPOVER -->
+  <div class="entity-hover-popover" id="entityHoverPopover"></div>
+
+  <!-- 5. THREE EDITORIAL STORY PANELS -->
+  <main class="panels">
+
+    <!-- PANEL 1: INGESTION & TRIGGER -->
+    <section class="panel" data-panel="0">
+      <div class="panel-editorial-card">
+        
+        <!-- LEFT COLUMN: EDITORIAL NARRATIVE -->
+        <div class="editorial-narrative">
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            <span>HOP 01 • ANOMALY INGESTION • CASE C-1024</span>
+          </div>
+          
+          <h1 class="hero-heading" id="heroHeading0" onmouseenter="scrambleElementText(this, 'SUBGRAPHS OVER\nSTATIC ALERTS.')">
+            SUBGRAPHS OVER<br/>
+            <span class="hero-gradient-text" data-scramble="STATIC ALERTS.">STATIC ALERTS.</span>
+          </h1>
+          
+          <p class="hero-subtext">
+            When an unusual <span class="graph-entity-chip alert-chip" data-id="wire" onmouseenter="showEntityPreview(this, 'wire', event)" onmouseleave="hideEntityPreview()">$4,850 wire</span> sparks in Lagos, TigerGraph triggers instant multi-hop traversal across <span class="graph-entity-chip" data-id="accounts" onmouseenter="showEntityPreview(this, 'accounts', event)" onmouseleave="hideEntityPreview()">14.2M accounts</span>—unmasking proxy fingerprint <span class="graph-entity-chip" data-id="DEV_293" onmouseenter="showEntityPreview(this, 'DEV_293', event)" onmouseleave="hideEntityPreview()">DEV_293</span> and victim <span class="graph-entity-chip" data-id="CUST_8291" onmouseenter="showEntityPreview(this, 'CUST_8291', event)" onmouseleave="hideEntityPreview()">CUST_8291</span> in under <span class="graph-entity-chip" data-id="latency" onmouseenter="showEntityPreview(this, 'latency', event)" onmouseleave="hideEntityPreview()">38ms</span>.
+          </p>
+
+          <!-- Interactive Step Scrubber -->
+          <div class="hop-scrubber">
+            <button class="scrub-pill active" id="scrub0_0" onclick="selectHopStep(0, 0)">
+              <span class="scrub-dot"></span>
+              <span>01 Spark $4.8K</span>
+            </button>
+            <button class="scrub-pill" id="scrub0_1" onclick="selectHopStep(0, 1)">
+              <span class="scrub-dot"></span>
+              <span>02 Proxy DEV_293</span>
+            </button>
+            <button class="scrub-pill" id="scrub0_2" onclick="selectHopStep(0, 2)">
+              <span class="scrub-dot"></span>
+              <span>03 Mule Path</span>
+            </button>
+            <button class="scrub-pill" id="scrub0_3" onclick="selectHopStep(0, 3)">
+              <span class="scrub-dot"></span>
+              <span>04 Step-Up 2FA</span>
+            </button>
+          </div>
+
+          <!-- Metric Strip -->
+          <div class="metric-strip">
+            <div class="metric-card" onclick="runLiveTraversalSimulation()" title="Click to trigger parallel graph traversal benchmark">
+              <div class="metric-val highlight">14.2M</div>
+              <div class="metric-lbl">Vertices Traversed</div>
+            </div>
+            <div class="metric-card" onclick="focusGraphNode('DEV_293')" title="Click to inspect composite risk breakdown">
+              <div class="metric-val alert">92%</div>
+              <div class="metric-lbl">Composite Risk</div>
+            </div>
+            <div class="metric-card" onclick="focusGraphNode('ACCT_4421')" title="Click to highlight syndicate mule path">
+              <div class="metric-val">3-Hop</div>
+              <div class="metric-lbl">Mule Ring Depth</div>
+            </div>
+          </div>
+
+          <!-- Action CTAs -->
+          <div class="cta-row">
+            <a class="pill" href="/dashboard?tab=investigate">Launch Cockpit →</a>
+            <button class="btn-simulate-traversal" onclick="runLiveTraversalSimulation()">
+              <span class="pulse-spark">⚡</span> Run Multi-Hop (38ms)
+            </button>
+            <button class="btn-secondary" onclick="scrollToHop(1)">Hop 02 ↓</button>
+          </div>
+
+          <!-- Live Simulation Toast Banner -->
+          <div class="traversal-live-toast" id="traversalLiveToast"></div>
+        </div>
+
+        <!-- RIGHT COLUMN: INTERACTIVE SUBGRAPH & GSQL INTELLIGENCE TERMINAL -->
+        <div class="editorial-terminal">
+          <div class="terminal-header">
+            <div class="term-dots">
+              <span class="term-dot r"></span>
+              <span class="term-dot y"></span>
+              <span class="term-dot g"></span>
+            </div>
+            <div class="term-tabs">
+              <button class="term-tab active" id="termTab0_0" onclick="switchTermTab(0, 0)">⚡ Live Traversal</button>
+              <button class="term-tab" id="termTab0_1" onclick="switchTermTab(0, 1)">📜 GSQL Query</button>
+              <button class="term-tab" id="termTab0_2" onclick="switchTermTab(0, 2)">🧠 LangGraph</button>
+            </div>
+          </div>
+
+          <div class="term-body">
+            <!-- TAB 0: LIVE TRAVERSAL PIPELINE -->
+            <div class="term-tab-pane active" id="termPane0_0">
+              <div class="pipe-step-node" id="pipeStep0_0" onclick="focusGraphNode('TXN_782391')">
+                <span class="pipe-icon-badge blue">01</span>
+                <div class="pipe-step-info">
+                  <div class="pipe-step-title"><span>Root Ingestion: TXN_782391</span><span style="color:#ff8533;">$4,850.00</span></div>
+                  <div class="pipe-step-desc">Wire anomaly sparked from unverified Lagos NeoBank IP (197.210.64.12)</div>
+                </div>
+              </div>
+
+              <div class="pipe-step-node active-step" id="pipeStep0_1" onclick="focusGraphNode('DEV_293')">
+                <span class="pipe-icon-badge red">02</span>
+                <div class="pipe-step-info">
+                  <div class="pipe-step-title"><span>Device Pivot: DEV_293</span><span style="color:#ef4444;">TOR PROXY</span></div>
+                  <div class="pipe-step-desc">iPhone 15 Pro hardware hash matched across 3 distinct dormant accounts</div>
+                </div>
+              </div>
+
+              <div class="pipe-step-node" id="pipeStep0_2" onclick="focusGraphNode('ACCT_4421')">
+                <span class="pipe-icon-badge purple">03</span>
+                <div class="pipe-step-info">
+                  <div class="pipe-step-title"><span>Mule Ring: ACCT_4421 ➔ ACCT_9923</span><span style="color:#c084fc;">OFF-RAMP</span></div>
+                  <div class="pipe-step-desc">3-hop rapid liquidation chain routed to CryptoLiquidity X exchange</div>
+                </div>
+              </div>
+
+              <div class="term-footer-bar">
+                <div><span style="color:#10b981;">●</span> Subgraph Latency: <strong style="color:#ffffff;">38ms</strong> &nbsp;|&nbsp; Vertices: <strong style="color:#ffffff;">14.2M</strong></div>
+                <button class="btn-term-action" onclick="runLiveTraversalSimulation()">⚡ RE-RUN</button>
+              </div>
+            </div>
+
+            <!-- TAB 1: GSQL QUERY CODE -->
+            <div class="term-tab-pane" id="termPane0_1">
+              <div class="gsql-code-box"><span class="cm">/* TigerGraph Autonomous 3-Hop Traversal */</span>
+<span class="kw">INTERPRET QUERY</span> (VERTEX&lt;Customer&gt; root_cust) <span class="kw">FOR GRAPH</span> FraudNetwork {
+  Start = { root_cust };
+  <span class="cm">// Hop 1: Resolve proxy hardware fingerprint</span>
+  Hop1 = <span class="kw">SELECT</span> d <span class="kw">FROM</span> Start -(LOGGED_INTO:e)- Device:d;
+  <span class="cm">// Hop 2: Identify shared syndicate accounts</span>
+  Hop2 = <span class="kw">SELECT</span> m <span class="kw">FROM</span> Hop1 -(SHARED_DEVICE:e)- CardAccount:m;
+  <span class="cm">// Hop 3: Detect liquidation off-ramps</span>
+  Hop3 = <span class="kw">SELECT</span> x <span class="kw">FROM</span> Hop2 -(ROUTED_TO:e)- Merchant:x;
+  <span class="kw">PRINT</span> Hop1, Hop2, Hop3 <span class="kw">WHERE</span> m.mule_score &gt; <span class="str">0.85</span>;
+}</div>
+              <div class="term-footer-bar">
+                <span style="color:#94a3b8;">GSQL v3.9 Compiler • Zero-copy traversal</span>
+                <button class="btn-term-action" onclick="runLiveTraversalSimulation()">▶ RUN GSQL (38ms)</button>
+              </div>
+            </div>
+
+            <!-- TAB 2: LANGGRAPH AGENT REASONING -->
+            <div class="term-tab-pane" id="termPane0_2">
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:9px;">
+                  <div style="font-weight:700; color:#38bdf8; font-size:11px;">1. PERCEPTION &amp; SUBGRAPH PROBE</div>
+                  <div style="color:#94a3b8; font-size:10px; margin-top:2px;">Discovered high-risk Lagos proxy IP 197.210.64.12 tied to hardware collision.</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:9px;">
+                  <div style="font-weight:700; color:#ff8533; font-size:11px;">2. SUFFICIENCY CALIBRATION</div>
+                  <div style="color:#94a3b8; font-size:10px; margin-top:2px;">Confidence = 81%, Sufficiency = 68% (&lt; 85% requirement). Blunt freeze denied.</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:9px;">
+                  <div style="font-weight:700; color:#10b981; font-size:11px;">3. GOVERNED EXECUTION (POL-ATO-01)</div>
+                  <div style="color:#94a3b8; font-size:10px; margin-top:2px;">Non-destructive Step-Up 2FA challenge delivered. FinCEN SAR narrative formulated.</div>
+                </div>
+              </div>
+              <div class="term-footer-bar">
+                <span style="color:#94a3b8;">LangGraph v0.2 • Memory Match: C-0872</span>
+                <a href="/dashboard?tab=investigate" class="btn-term-action" style="text-decoration:none;">VIEW TRACE →</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PANEL 2: REASONING & UNCERTAINTY -->
+    <section class="panel" data-panel="1">
+      <div class="panel-editorial-card">
+        
+        <!-- LEFT COLUMN: EDITORIAL NARRATIVE -->
+        <div class="editorial-narrative">
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            <span>HOP 02 • AGENT REASONING &amp; SUFFICIENCY</span>
+          </div>
+          
+          <h1 class="hero-heading" id="heroHeading1" onmouseenter="scrambleElementText(this, 'UNCERTAINTY ISN\'T FAILURE.\nIT\'S GOVERNANCE.')">
+            UNCERTAINTY ISN'T FAILURE.<br/>
+            <span class="hero-gradient-text" data-scramble="IT'S GOVERNANCE.">IT'S GOVERNANCE.</span>
+          </h1>
+          
+          <p class="hero-subtext">
+            With <span class="graph-entity-chip" data-id="confidence" onmouseenter="showEntityPreview(this, 'confidence', event)" onmouseleave="hideEntityPreview()">81% topology confidence</span> but only <span class="graph-entity-chip alert-chip" data-id="sufficiency" onmouseenter="showEntityPreview(this, 'sufficiency', event)" onmouseleave="hideEntityPreview()">68% sufficiency</span>, our autonomous agent refuses blunt terminal freezes—prescribing non-destructive <span class="graph-entity-chip" data-id="stepup" onmouseenter="showEntityPreview(this, 'stepup', event)" onmouseleave="hideEntityPreview()">Step-Up 2FA</span> and evaluating GraphRAG rule <span class="graph-entity-chip" data-id="POL-ATO-01" onmouseenter="showEntityPreview(this, 'POL-ATO-01', event)" onmouseleave="hideEntityPreview()">POL-ATO-01</span>.
+          </p>
+
+          <!-- Interactive Selector -->
+          <div class="hop-scrubber">
+            <button class="scrub-pill active" id="scrub1_0" onclick="selectHopStep(1, 0)">
+              <span class="scrub-dot"></span>
+              <span>Sufficiency 68%</span>
+            </button>
+            <button class="scrub-pill" id="scrub1_1" onclick="selectHopStep(1, 1)">
+              <span class="scrub-dot"></span>
+              <span>Rule POL-ATO-01</span>
+            </button>
+            <button class="scrub-pill" id="scrub1_2" onclick="selectHopStep(1, 2)">
+              <span class="scrub-dot"></span>
+              <span>Vector Memory C-0872</span>
+            </button>
+          </div>
+
+          <!-- Metric Strip -->
+          <div class="metric-strip">
+            <div class="metric-card" title="Evidence Sufficiency required: 85%">
+              <div class="metric-val">68%</div>
+              <div class="metric-lbl">Sufficiency (Req 85%)</div>
+            </div>
+            <div class="metric-card" onclick="window.location.href='/dashboard?tab=policies'" title="View GraphRAG compliance policy POL-ATO-01">
+              <div class="metric-val highlight">POL-ATO-01</div>
+              <div class="metric-lbl">GraphRAG Rule</div>
+            </div>
+            <div class="metric-card" onclick="window.location.href='/dashboard?tab=case-memory'" title="Inspect vector memory case match C-0872">
+              <div class="metric-val alert">C-0872</div>
+              <div class="metric-lbl">Vector Memory Match</div>
+            </div>
+          </div>
+
+          <!-- Action CTAs -->
+          <div class="cta-row">
+            <a class="pill" href="/dashboard?tab=workspace">Inspect Next Best Action →</a>
+            <a class="btn-secondary" href="/dashboard?tab=policies">View Policy Matrix</a>
+            <button class="btn-secondary" onclick="scrollToHop(2)">Hop 03 ↓</button>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: INTERACTIVE SUFFICIENCY CALIBRATOR & POLICY ENGINE -->
+        <div class="editorial-terminal">
+          <div class="terminal-header">
+            <div class="term-dots">
+              <span class="term-dot r"></span>
+              <span class="term-dot y"></span>
+              <span class="term-dot g"></span>
+            </div>
+            <div class="term-tabs">
+              <button class="term-tab active" id="termTab1_0" onclick="switchTermTab(1, 0)">📊 Sufficiency Gauge</button>
+              <button class="term-tab" id="termTab1_1" onclick="switchTermTab(1, 1)">🛡️ GraphRAG Rule</button>
+              <button class="term-tab" id="termTab1_2" onclick="switchTermTab(1, 2)">🔍 Prior Match</button>
+            </div>
+          </div>
+
+          <div class="term-body">
+            <!-- TAB 0: SUFFICIENCY GAUGE -->
+            <div class="term-tab-pane active" id="termPane1_0">
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px; margin-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <span style="font-weight:700; color:#ffffff;">Evidence Sufficiency Score</span>
+                  <span style="font-weight:700; color:#f59e0b;">68.4% (Threshold: 85%)</span>
+                </div>
+                <div style="height:8px; border-radius:4px; background:rgba(255,255,255,0.1); overflow:hidden; position:relative;">
+                  <div style="height:100%; width:68%; background:linear-gradient(90deg, #f59e0b, #ff8533); border-radius:4px;"></div>
+                  <div style="position:absolute; left:85%; top:0; bottom:0; width:2px; background:#10b981;" title="85% Hard Gate Threshold"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:9.5px; color:#64748b; margin-top:6px;">
+                  <span>0% (Hypothesis)</span>
+                  <span style="color:#10b981;">▲ Required: 85%</span>
+                  <span>100% (Certainty)</span>
+                </div>
+              </div>
+
+              <div class="pipe-step-node active-step" style="border-color:#f59e0b; background:rgba(245,158,11,0.08);">
+                <span class="pipe-icon-badge orange">⚖</span>
+                <div class="pipe-step-info">
+                  <div class="pipe-step-title"><span>Governed Policy Decision</span><span style="color:#38bdf8;">NON-DESTRUCTIVE</span></div>
+                  <div class="pipe-step-desc">Sufficiency under 85% prevents destructive account freezes; arms Step-Up OTP challenge.</div>
+                </div>
+              </div>
+
+              <div class="term-footer-bar">
+                <div><span style="color:#f59e0b;">●</span> Decision: <strong style="color:#ffffff;">CHALLENGE_2FA</strong> &nbsp;|&nbsp; Route: <strong style="color:#ffffff;">L1 Auto-Armed</strong></div>
+                <a href="/dashboard?tab=workspace" class="btn-term-action" style="text-decoration:none;">VIEW NBA MATRIX →</a>
+              </div>
+            </div>
+
+            <!-- TAB 1: GRAPHRAG RULE POL-ATO-01 -->
+            <div class="term-tab-pane" id="termPane1_1">
+              <div class="gsql-code-box"><span class="cm">/* GraphRAG Dynamic Compliance Policy */</span>
+<span class="kw">RULE</span> POL-ATO-01 <span class="kw">EXTENDS</span> BaseAccountTakeoverPolicy {
+  <span class="kw">CONDITION</span>:
+    device.is_proxy == <span class="kw">true</span> &amp;&amp;
+    geo.anomaly_distance &gt; <span class="str">5000km</span> &amp;&amp;
+    evidence_sufficiency &lt; <span class="str">0.85</span>;
+  <span class="kw">PRESCRIPTION</span>:
+    <span class="fn">ARM_ACTION</span>(<span class="str">"CHALLENGE_SMS_OTP"</span>, priority=1);
+    <span class="fn">DEFER_ACTION</span>(<span class="str">"FREEZE_ACCOUNT"</span>, requires=<span class="str">"L2_HUMAN_APPROVAL"</span>);
+}</div>
+              <div class="term-footer-bar">
+                <span style="color:#94a3b8;">Policy Validated by GSQL Knowledge Graph</span>
+                <a href="/dashboard?tab=policies" class="btn-term-action" style="text-decoration:none;">RULE REPOSITORY →</a>
+              </div>
+            </div>
+
+            <!-- TAB 2: VECTOR CASE MEMORY MATCH -->
+            <div class="term-tab-pane" id="termPane1_2">
+              <div class="pipe-step-node" onclick="window.location.href='/dashboard?tab=case-memory'">
+                <span class="pipe-icon-badge green">C</span>
+                <div class="pipe-step-info">
+                  <div class="pipe-step-title"><span>Prior Precedent: CASE C-0872</span><span style="color:#34d399;">89% MATCH</span></div>
+                  <div class="pipe-step-desc">Identical Nigerian VPN proxy routing to NeoBank crypto off-ramp resolved in May.</div>
+                </div>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px; font-size:10.5px; color:#94a3b8; margin-top:8px;">
+                <strong style="color:#ffffff;">Learned Mitigation:</strong> Customer responded to Step-Up 2FA denial within 4 minutes, confirming fraudulent intrusion without operational ticket overhead.
+              </div>
+              <div class="term-footer-bar">
+                <span style="color:#94a3b8;">Vector Similarity: Cosine 0.892</span>
+                <a href="/dashboard?tab=case-memory" class="btn-term-action" style="text-decoration:none;">OPEN CASE C-0872 →</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PANEL 3: HUMAN APPROVAL & AUDIT -->
+    <section class="panel" data-panel="2">
+      <div class="panel-editorial-card">
+        
+        <!-- LEFT COLUMN: EDITORIAL NARRATIVE -->
+        <div class="editorial-narrative">
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            <span>HOP 03 • GOVERNED EXECUTION &amp; AUDIT</span>
+          </div>
+          
+          <h1 class="hero-heading" id="heroHeading2" onmouseenter="scrambleElementText(this, 'AUTONOMOUS SPEED.\nHUMAN AUTHORITY.')">
+            AUTONOMOUS SPEED.<br/>
+            <span class="hero-gradient-text" data-scramble="HUMAN AUTHORITY.">HUMAN AUTHORITY.</span>
+          </h1>
+          
+          <p class="hero-subtext">
+            Every high-impact asset freeze (<span class="graph-entity-chip alert-chip" data-id="freeze" onmouseenter="showEntityPreview(this, 'freeze', event)" onmouseleave="hideEntityPreview()">$10k+ threshold</span>) routes cleanly to Senior Investigators with cryptographic audit trails, immutable ledger hashes <span class="graph-entity-chip" data-id="hash" onmouseenter="showEntityPreview(this, 'hash', event)" onmouseleave="hideEntityPreview()">0x9c48...38fa</span>, and instant case memory commits.
+          </p>
+
+          <!-- Interactive Selector -->
+          <div class="hop-scrubber">
+            <button class="scrub-pill active" id="scrub2_0" onclick="selectHopStep(2, 0)">
+              <span class="scrub-dot"></span>
+              <span>FinCEN SAR Narrative</span>
+            </button>
+            <button class="scrub-pill" id="scrub2_1" onclick="selectHopStep(2, 1)">
+              <span class="scrub-dot"></span>
+              <span>Dual-Key Auth</span>
+            </button>
+            <button class="scrub-pill" id="scrub2_2" onclick="selectHopStep(2, 2)">
+              <span class="scrub-dot"></span>
+              <span>Audit Proof</span>
+            </button>
+          </div>
+
+          <!-- Metric Strip -->
+          <div class="metric-strip">
+            <div class="metric-card">
+              <div class="metric-val highlight">84.2%</div>
+              <div class="metric-lbl">Auto Mitigation</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val">3.8 min</div>
+              <div class="metric-lbl">Mean Triage Duration</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val">0x9c48...38fa</div>
+              <div class="metric-lbl">Audit Proof Hash</div>
+            </div>
+          </div>
+
+          <!-- Action CTAs -->
+          <div class="cta-row">
+            <a class="pill" href="/dashboard">Enter Live Cockpit →</a>
+            <a class="btn-secondary" href="/login">Analyst Sign In →</a>
+            <button class="btn-secondary" onclick="scrollToHop(0)">Return to Hop 01 ↑</button>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: INTERACTIVE FINCEN SAR & AUDIT CONSOLE -->
+        <div class="editorial-terminal">
+          <div class="terminal-header">
+            <div class="term-dots">
+              <span class="term-dot r"></span>
+              <span class="term-dot y"></span>
+              <span class="term-dot g"></span>
+            </div>
+            <div class="term-tabs">
+              <button class="term-tab active" id="termTab2_0" onclick="switchTermTab(2, 0)">📄 FinCEN SAR</button>
+              <button class="term-tab" id="termTab2_1" onclick="switchTermTab(2, 1)">🔑 Dual-Key Gate</button>
+              <button class="term-tab" id="termTab2_2" onclick="switchTermTab(2, 2)">📜 Immutable Proof</button>
+            </div>
+          </div>
+
+          <div class="term-body">
+            <!-- TAB 0: FINCEN SAR NARRATIVE -->
+            <div class="term-tab-pane active" id="termPane2_0">
+              <div style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; font-size:10.5px; line-height:1.6; color:#e2e8f0; max-height:165px; overflow-y:auto;">
+                <strong style="color:#ff8533;">SUSPICIOUS ACTIVITY REPORT (SAR) — FinCEN FORM 111</strong><br/>
+                <span style="color:#64748b;">Subject: Marcus Vance (CUST_8291) | Wire $4,850.00 USD</span><br/>
+                On 2026-09-24, TigerGraph multi-hop engine detected an unauthorized login to Marcus Vance's account from proxy device DEV_293 (iPhone 15 Pro, IP 197.210.64.12, Lagos). Within 38ms, an outbound wire was intercepted destined for syndicate mule node ACCT_4421. Step-Up challenge deployed under Policy POL-ATO-01. Customer denial confirmed account takeover intrusion.
+              </div>
+              <div class="term-footer-bar">
+                <span style="color:#10b981;">✓ Synthesized in 38ms • AML Compliant</span>
+                <a href="/dashboard?tab=investigate" class="btn-term-action" style="text-decoration:none;">EXPORT SAR PDF</a>
+              </div>
+            </div>
+
+            <!-- TAB 1: DUAL-KEY AUTHORIZATION -->
+            <div class="term-tab-pane" id="termPane2_1">
+              <div class="pipe-step-node" style="border-color:#10b981; background:rgba(16,185,129,0.06);">
+                <span class="pipe-icon-badge green">✓</span>
+                <div class="pipe-step-info">
+                  <div class="pipe-step-title"><span>Elena Vance (Lead Auditor)</span><span style="color:#34d399;">SIGNED</span></div>
+                  <div class="pipe-step-desc">Passkey authorized via WebAuthn FIDO2 token at 11:51:44 UTC</div>
+                </div>
+              </div>
+              <div class="pipe-step-node" style="border-color:#38bdf8; background:rgba(56,189,248,0.06);">
+                <span class="pipe-icon-badge blue">●</span>
+                <div class="pipe-step-info">
+                  <div class="pipe-step-title"><span>Marcus Vance (Cardholder)</span><span style="color:#38bdf8;">2FA REJECTED</span></div>
+                  <div class="pipe-step-desc">Customer flagged push challenge as "NOT AUTHORIZED" in mobile banking app</div>
+                </div>
+              </div>
+              <div class="term-footer-bar">
+                <span style="color:#94a3b8;">Dual Key Condition Satisfied</span>
+                <button class="btn-term-action" onclick="alert('Step-Up Freeze Executed under Dual Authority!')">CONFIRM AUDIT</button>
+              </div>
+            </div>
+
+            <!-- TAB 2: IMMUTABLE AUDIT PROOF -->
+            <div class="term-tab-pane" id="termPane2_2">
+              <div class="gsql-code-box"><span class="cm">// Cryptographic Evidence Commitment</span>
+{
+  <span class="str">"case_id"</span>: <span class="str">"C-1024"</span>,
+  <span class="str">"graph_vertex"</span>: <span class="str">"TG-CASE-C1024"</span>,
+  <span class="str">"evidence_sha256"</span>: <span class="str">"0x9c48b2e1f40838fa6127"</span>,
+  <span class="str">"governance_route"</span>: <span class="str">"HITL_DUAL_KEY"</span>,
+  <span class="str">"mitigation"</span>: <span class="str">"CHALLENGE_STEP_UP_PASS"</span>
+}</div>
+              <div class="term-footer-bar">
+                <span style="color:#94a3b8;">Ingested into TigerGraph Ledger</span>
+                <a href="/dashboard?tab=workspace" class="btn-term-action" style="text-decoration:none;">VERIFY PROOF →</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 6. FOOTER -->
+  <footer class="foot">
+    TigerGraph Fraud Studio &nbsp;•&nbsp; Agentic Investigation Engine v2.4 &nbsp;•&nbsp; GSQL • LangGraph • GraphRAG
+  </footer>
+
+  <!-- 7. SCROLL TRACK (GIVES THE DOCUMENT HEIGHT) -->
+  <div class="track" id="scrollTrack"></div>
+
+  <!-- 8. KINETIC SCROLL-SCRUBBED SCRIPT & INTERACTIVE 3D ENGINE -->
+  <script>
+  (function(){
+    "use strict";
+
+    // References
+    var boot = document.getElementById("boot");
+    var bootBar = document.getElementById("bootBar");
+    var bootPct = document.getElementById("bootPct");
+    var meter = document.getElementById("meter");
+    var canvas = document.getElementById("graphCanvas");
+    var ctx = canvas.getContext("2d");
+    var panels = [].slice.call(document.querySelectorAll("[data-panel]"));
+
+    // State
+    var progress = 0;
+    var targetProgress = 0;
+    var ready = false;
+    var width = 0;
+    var height = 0;
+    var dpr = window.devicePixelRatio || 1;
+
+    // CUE RANGES [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd]
+    var CUES = [
+      [0.00, 0.00, 0.22, 0.32],
+      [0.37, 0.46, 0.62, 0.72],
+      [0.76, 0.86, 1.10, 1.20]
+    ];
+    var DRIFT = 24; // px drift
+
+    // Math Helpers
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+    function smooth(t){ return t * t * (3 - 2 * t); }
+    function ramp(p, a, b){
+      if (b <= a) return p >= b ? 1 : 0;
+      return smooth(clamp((p - a) / (b - a), 0, 1));
+    }
+
+    // Scroll helper for nav clicks & stepper
+    window.scrollToHop = function(hopIndex) {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var targets = [0.01, 0.50, 0.95];
+      var scrollY = (targets[hopIndex] !== undefined ? targets[hopIndex] : 0) * max;
+      window.scrollTo({ top: scrollY, behavior: 'smooth' });
+    };
+
+    function updateStepper(p) {
+      var step0 = document.getElementById("stepChip0");
+      var step1 = document.getElementById("stepChip1");
+      var step2 = document.getElementById("stepChip2");
+      if (!step0 || !step1 || !step2) return;
+
+      step0.classList.remove("active");
+      step1.classList.remove("active");
+      step2.classList.remove("active");
+
+      if (p < 0.35) {
+        step0.classList.add("active");
+      } else if (p < 0.73) {
+        step1.classList.add("active");
+      } else {
+        step2.classList.add("active");
+      }
+    }
+
+    // Graph Nodes Definition (Simulation of Case C-1024 Topology)
+    var NODES = [
+      { id: "CUST_8291", label: "CUST_8291", sub: "Marcus Vance", type: "victim", x: 0.50, y: 0.52, r: 24, color: "#ff6a00" },
+      { id: "DEV_293", label: "DEV_293", sub: "iPhone 15 Proxy", type: "device", x: 0.49, y: 0.28, r: 20, color: "#dc2626" },
+      { id: "ACCT_4421", label: "ACCT_4421", sub: "Syndicate Mule 1", type: "mule", x: 0.28, y: 0.38, r: 18, color: "#ef4444" },
+      { id: "ACCT_9923", label: "ACCT_9923", sub: "Dormant Mule 2", type: "mule", x: 0.72, y: 0.36, r: 18, color: "#ef4444" },
+      { id: "TXN_782391", label: "TXN_782391", sub: "$4,850.00 Wire", type: "txn", x: 0.50, y: 0.74, r: 20, color: "#d97706" },
+      { id: "MERCH_29382", label: "CryptoLiquidity X", sub: "Known Off-Ramp", type: "merchant", x: 0.76, y: 0.76, r: 19, color: "#4f46e5" },
+      { id: "CASE_0872", label: "CASE C-0872", sub: "Memory Vector Match", type: "memory", x: 0.24, y: 0.68, r: 17, color: "#059669" }
+    ];
+
+    var EDGES = [
+      { from: 0, to: 1, label: "LOGGED_INTO", cue: 0.05 },
+      { from: 1, to: 2, label: "SHARED_DEVICE", cue: 0.18 },
+      { from: 1, to: 3, label: "SHARED_DEVICE", cue: 0.22 },
+      { from: 0, to: 4, label: "INITIATED_TXN", cue: 0.02 },
+      { from: 4, to: 5, label: "TRANSFER_TO", cue: 0.28 },
+      { from: 0, to: 6, label: "SIMILAR_CLUSTER (89%)", cue: 0.35 }
+    ];
+
+    function resize(){
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+      readScroll();
+    }
+
+    function readScroll(){
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      targetProgress = max > 0 ? clamp(window.pageYOffset / max, 0, 1) : 0;
+    }
+
+    // Paint HTML Panels and Hairline Meter
+    function paintPanels(){
+      meter.style.transform = "scaleX(" + progress + ")";
+      updateStepper(progress);
+
+      for (var i = 0; i < panels.length; i++){
+        var c = CUES[i];
+        var enter = ramp(progress, c[0], c[1]);
+        var leave = ramp(progress, c[2], c[3]);
+        var o = enter * (1 - leave);
+        var y = (1 - enter) * DRIFT - leave * DRIFT;
+
+        var el = panels[i];
+        el.style.opacity = o.toFixed(3);
+        el.style.transform = "translate3d(0," + y.toFixed(1) + "px,0)";
+        el.style.pointerEvents = o > 0.4 ? "auto" : "none";
+      }
+    }
+
+    // Render Procedural Knowledge Graph Canvas (Overlay details & highlights)
+    function drawGraph(){
+      ctx.clearRect(0, 0, width, height);
+
+      var zoom = 1 + Math.sin(progress * Math.PI) * 0.22;
+      var panX = Math.sin(progress * Math.PI * 1.5) * 40;
+      var panY = -progress * 60 + 20;
+
+      ctx.save();
+      ctx.translate(width / 2 + panX, height / 2 + panY);
+      ctx.scale(zoom, zoom);
+      ctx.translate(-width / 2, -height / 2);
+
+      var cx = width;
+      var cy = height;
+
+      // Draw Subgraph Halos / Cluster Boundaries
+      var clusterAlpha = ramp(progress, 0.15, 0.45);
+      if (clusterAlpha > 0) {
+        ctx.beginPath();
+        ctx.arc(cx * 0.49, cy * 0.32, 160, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(239, 68, 68, " + (clusterAlpha * 0.05) + ")";
+        ctx.strokeStyle = "rgba(239, 68, 68, " + (clusterAlpha * 0.25) + ")";
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 6]);
+        ctx.stroke();
+        ctx.fill();
+        ctx.setLineDash([]);
+
+        // Cluster tag
+        ctx.font = "600 10px 'JetBrains Mono', monospace";
+        ctx.fillStyle = "rgba(220, 38, 38, " + clusterAlpha + ")";
+        ctx.fillText("TIGERGRAPH CLUSTER #92: MULE RING", cx * 0.49 - 95, cy * 0.32 - 168);
+      }
+
+      // Draw Edges with animated pulse
+      for (var e = 0; e < EDGES.length; e++){
+        var edge = EDGES[e];
+        var n1 = NODES[edge.from];
+        var n2 = NODES[edge.to];
+        var edgeAppear = ramp(progress, edge.cue, edge.cue + 0.12);
+
+        if (edgeAppear > 0.01) {
+          var x1 = n1.x * cx;
+          var y1 = n1.y * cy;
+          var x2 = n2.x * cx;
+          var y2 = n2.y * cy;
+
+          var curX2 = x1 + (x2 - x1) * edgeAppear;
+          var curY2 = y1 + (y2 - y1) * edgeAppear;
+
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(curX2, curY2);
+          ctx.strokeStyle = (edge.from === 1 || edge.to === 1) 
+            ? "rgba(220, 38, 38, " + (0.35 * edgeAppear) + ")" 
+            : "rgba(13, 12, 11, " + (0.18 * edgeAppear) + ")";
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+
+          // Flowing particle on active edges
+          var t = (Date.now() * 0.0015 + e * 0.4) % 1;
+          var px = x1 + (x2 - x1) * t;
+          var py = y1 + (y2 - y1) * t;
+          ctx.beginPath();
+          ctx.arc(px, py, 3, 0, Math.PI * 2);
+          ctx.fillStyle = (edge.from === 1 || edge.to === 1) ? "#ef4444" : "#ff6a00";
+          ctx.fill();
+
+          // Edge Label
+          if (edgeAppear > 0.7) {
+            var mx = (x1 + x2) / 2;
+            var my = (y1 + y2) / 2;
+            ctx.save();
+            ctx.font = "500 9px 'JetBrains Mono', monospace";
+            ctx.fillStyle = "rgba(13, 12, 11, 0.55)";
+            ctx.textAlign = "center";
+            ctx.fillText(edge.label, mx, my - 6);
+            ctx.restore();
+          }
+        }
+      }
+
+      // Draw Nodes
+      for (var n = 0; n < NODES.length; n++){
+        var node = NODES[n];
+        var nodeX = node.x * cx;
+        var nodeY = node.y * cy;
+
+        var nAppear = ramp(progress, (n * 0.06), (n * 0.06) + 0.12);
+        if (nAppear < 0.05) continue;
+
+        ctx.save();
+        ctx.translate(nodeX, nodeY);
+        ctx.scale(nAppear, nAppear);
+
+        // Outer glow
+        ctx.beginPath();
+        ctx.arc(0, 0, node.r + 6, 0, Math.PI * 2);
+        ctx.fillStyle = node.color === "#dc2626" ? "rgba(220, 38, 38, 0.12)" : "rgba(255, 106, 0, 0.10)";
+        ctx.fill();
+
+        // White background disc
+        ctx.beginPath();
+        ctx.arc(0, 0, node.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.fill();
+        ctx.strokeStyle = node.color;
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+
+        // Inner pip
+        ctx.beginPath();
+        ctx.arc(0, 0, node.r * 0.42, 0, Math.PI * 2);
+        ctx.fillStyle = node.color;
+        ctx.fill();
+
+        // Labels
+        ctx.textAlign = "center";
+        ctx.font = "700 11px 'JetBrains Mono', monospace";
+        ctx.fillStyle = "#0d0c0b";
+        ctx.fillText(node.label, 0, node.r + 16);
+
+        ctx.font = "400 9.5px 'Inter Tight', sans-serif";
+        ctx.fillStyle = "rgba(13, 12, 11, 0.6)";
+        ctx.fillText(node.sub, 0, node.r + 28);
+
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    // Animation & Smooth Scrub Loop
+    function frame(){
+      var gap = targetProgress - progress;
+      if (Math.abs(gap) > 0.0001){
+        progress += gap * 0.095;
+      }
+
+      paintPanels();
+      drawGraph();
+
+      requestAnimationFrame(frame);
+    }
+
+    // Preloader Boot
+    var bootCount = 0;
+    function runBoot(){
+      bootCount += 0.05;
+      if (bootCount >= 1){
+        bootBar.style.transform = "scaleX(1)";
+        bootPct.textContent = "TOPOLOGY LOADED 100%";
+        ready = true;
+        setTimeout(function(){
+          boot.classList.add("done");
+        }, 300);
+      } else {
+        bootBar.style.transform = "scaleX(" + bootCount + ")";
+        bootPct.textContent = "INITIALIZING TOPOLOGY " + Math.round(bootCount * 100) + "%";
+        setTimeout(runBoot, 35);
+      }
+    }
+
+    // Initialize
+    window.addEventListener("scroll", readScroll, { passive: true });
+    window.addEventListener("resize", resize);
+
+    resize();
+    runBoot();
+    requestAnimationFrame(frame);
+
+  })();
+
+  // =========================================================================
+  // Three.js 3D Force-Directed Knowledge Graph Stage + Raycaster Inspection
+  // =========================================================================
+  (function() {
+    const container = document.getElementById('threejs-container-ANIMATION_16');
+    const tipEl = document.getElementById("nodeInspectorTip");
+    if (!container || typeof THREE === "undefined") return;
+
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || window.innerHeight;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
+    camera.position.set(0, 15, 65);
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    container.appendChild(renderer.domElement);
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
+    scene.add(ambientLight);
+
+    const pointLight1 = new THREE.PointLight(0xff6a00, 2.5, 120);
+    pointLight1.position.set(20, 25, 30);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0x3b82f6, 2.0, 100);
+    pointLight2.position.set(-25, -15, 20);
+    scene.add(pointLight2);
+
+    // Graph Root Group
+    const graphGroup = new THREE.Group();
+    scene.add(graphGroup);
+
+    // Node Definitions
+    const nodesData = [
+      { id: 'CUST_8291', label: 'Victim Customer', desc: 'Marcus Vance • Checking ****1234', color: 0x3b82f6, size: 2.3, pos: new THREE.Vector3(-18, 6, 2) },
+      { id: 'DEV_293', label: 'Compromised Proxy', desc: 'iPhone 15 Pro • Lagos Proxy Node', color: 0xef4444, size: 2.1, pos: new THREE.Vector3(-6, 14, -4) },
+      { id: 'IP_94_102', label: 'TOR Relay / ASN', desc: 'Anonymous Exit Relay Node', color: 0xf97316, size: 1.7, pos: new THREE.Vector3(-2, 22, -10) },
+      { id: 'TXN_7823', label: 'High Velocity Tx ($18.4k)', desc: 'Wire Ingress to Offshore NeoBank', color: 0xff6a00, size: 2.6, pos: new THREE.Vector3(0, 0, 4) },
+      { id: 'ACCT_4421', label: 'Mule Ring A', desc: 'Syndicate Funnel 1 • 3-Hop Link', color: 0xef4444, size: 2.1, pos: new THREE.Vector3(14, 8, -6) },
+      { id: 'ACCT_9923', label: 'Mule Ring B', desc: 'Dormant Mule Account 2', color: 0xdc2626, size: 2.0, pos: new THREE.Vector3(18, -6, 2) },
+      { id: 'CRYPTO_EX', label: 'Liquidity Off-Ramp', desc: 'Prepaid Debit & Crypto Aggregator', color: 0x8b5cf6, size: 2.5, pos: new THREE.Vector3(26, -16, -2) },
+      { id: 'CASE_0872', label: 'Vector Memory Match (98%)', desc: 'Prior Case Vector Match Precedent', color: 0x10b981, size: 1.8, pos: new THREE.Vector3(-12, -12, 6) },
+      { id: 'DEVICE_FPRINT', label: 'Hardware Hash collision', desc: 'GPU WebGL Canvas Fingerprint Match', color: 0x06b6d4, size: 1.5, pos: new THREE.Vector3(-22, -4, -8) },
+      { id: 'SUBGRAPH_GSQL', label: 'GSQL Community Cluster', desc: 'Connected Community Subgraph #92', color: 0xff8c38, size: 1.7, pos: new THREE.Vector3(8, -14, 10) }
+    ];
+
+    // Edge Connections
+    const edgesData = [
+      { from: 0, to: 1, alert: true },
+      { from: 1, to: 2, alert: true },
+      { from: 0, to: 3, alert: true },
+      { from: 1, to: 3, alert: true },
+      { from: 3, to: 4, alert: true },
+      { from: 3, to: 5, alert: true },
+      { from: 4, to: 6, alert: true },
+      { from: 5, to: 6, alert: true },
+      { from: 0, to: 7, alert: false },
+      { from: 1, to: 8, alert: false },
+      { from: 7, to: 8, alert: false },
+      { from: 5, to: 9, alert: false },
+      { from: 4, to: 9, alert: false }
+    ];
+
+    const sphereGeo = new THREE.SphereGeometry(1, 32, 32);
+    const nodeMeshes = [];
+    const haloMeshes = [];
+
+    nodesData.forEach((node) => {
+      const mat = new THREE.MeshPhongMaterial({
+        color: node.color,
+        emissive: node.color,
+        emissiveIntensity: 0.38,
+        shininess: 85
+      });
+      const mesh = new THREE.Mesh(sphereGeo, mat);
+      mesh.scale.set(node.size, node.size, node.size);
+      mesh.position.copy(node.pos);
+      mesh.userData = { id: node.id, label: node.label, desc: node.desc, baseScale: node.size, basePos: node.pos.clone() };
+      graphGroup.add(mesh);
+      nodeMeshes.push(mesh);
+
+      // Outer orbital pulse ring
+      const ringGeo = new THREE.RingGeometry(node.size * 1.3, node.size * 1.55, 32);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: node.color,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.55
+      });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.position.copy(node.pos);
+      ring.rotation.x = Math.PI / 2;
+      graphGroup.add(ring);
+      haloMeshes.push(ring);
+    });
+
+    const lineMaterials = [];
+    const edgeParticles = [];
+
+    edgesData.forEach(edge => {
+      const p1 = nodesData[edge.from].pos;
+      const p2 = nodesData[edge.to].pos;
+
+      const points = [p1, p2];
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+      const lineMat = new THREE.LineBasicMaterial({
+        color: edge.alert ? 0xff6a00 : 0x94a3b8,
+        transparent: true,
+        opacity: edge.alert ? 0.7 : 0.3,
+        linewidth: edge.alert ? 2 : 1
+      });
+      const line = new THREE.Line(lineGeo, lineMat);
+      graphGroup.add(line);
+      lineMaterials.push(lineMat);
+
+      // Data packet particle traveling along edge
+      const partGeo = new THREE.SphereGeometry(0.38, 12, 12);
+      const partMat = new THREE.MeshBasicMaterial({
+        color: edge.alert ? 0xff4d00 : 0x38bdf8,
+        transparent: true,
+        opacity: 0.95
+      });
+      const particle = new THREE.Mesh(partGeo, partMat);
+      graphGroup.add(particle);
+      edgeParticles.push({
+        mesh: particle,
+        from: p1,
+        to: p2,
+        t: Math.random(),
+        speed: 0.006 + Math.random() * 0.007
+      });
+    });
+
+    // Cyber dust particles
+    const dustCount = 180;
+    const dustGeo = new THREE.BufferGeometry();
+    const dustPositions = new Float32Array(dustCount * 3);
+    for (let i = 0; i < dustCount * 3; i += 3) {
+      dustPositions[i] = (Math.random() - 0.5) * 120;
+      dustPositions[i + 1] = (Math.random() - 0.5) * 90;
+      dustPositions[i + 2] = (Math.random() - 0.5) * 80;
+    }
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+    const dustMat = new THREE.PointsMaterial({
+      color: 0xff6a00,
+      size: 0.8,
+      transparent: true,
+      opacity: 0.35
+    });
+    const dustPoints = new THREE.Points(dustGeo, dustMat);
+    scene.add(dustPoints);
+
+    // Mouse parallax tracking
+    let mouseX = 0, mouseY = 0;
+    let targetRotX = 0, targetRotY = 0;
+
+    // Raycaster for interactive node hovering
+    const raycaster = new THREE.Raycaster();
+    const mouseVec = new THREE.Vector2();
+    let hoveredMesh = null;
+
+    function onMouseMove(e) {
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      mouseX = (x / rect.width) * 2 - 1;
+      mouseY = -(y / rect.height) * 2 + 1;
+      targetRotY = mouseX * 0.45;
+      targetRotX = -mouseY * 0.3;
+
+      // Raycasting
+      mouseVec.x = (x / rect.width) * 2 - 1;
+      mouseVec.y = -(y / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouseVec, camera);
+      const intersects = raycaster.intersectObjects(nodeMeshes);
+
+      if (intersects.length > 0) {
+        hoveredMesh = intersects[0].object;
+        document.body.style.cursor = "pointer";
+        if (tipEl) {
+          tipEl.style.display = "block";
+          tipEl.style.left = e.clientX + "px";
+          tipEl.style.top = e.clientY + "px";
+          tipEl.innerHTML = `
+            <div style="font-weight:700; color:#ff6a00; font-family:'JetBrains Mono',monospace;">${hoveredMesh.userData.id}</div>
+            <div style="font-weight:600; font-size:12px;">${hoveredMesh.userData.label}</div>
+            <div style="font-size:10.5px; opacity:0.75; margin-top:2px;">${hoveredMesh.userData.desc}</div>
+            <div style="font-size:10px; color:#38bdf8; margin-top:4px;">Click to inspect in Investigation Workspace &rarr;</div>
+          `;
+        }
+      } else {
+        hoveredMesh = null;
+        document.body.style.cursor = "default";
+        if (tipEl) tipEl.style.display = "none";
+      }
+    }
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+
+    // Click on 3D node
+    window.addEventListener('click', (e) => {
+      if (hoveredMesh) {
+        window.location.href = "/dashboard?tab=workspace";
+      }
+    });
+
+    // Node Focus helpers called from text chips
+    window.focusGraphNode = function(nodeId) {
+      const mesh = nodeMeshes.find(m => m.userData.id === nodeId);
+      if (mesh) {
+        mesh.scale.set(mesh.userData.baseScale * 1.5, mesh.userData.baseScale * 1.5, mesh.userData.baseScale * 1.5);
+        pointLight1.position.copy(mesh.position);
+        pointLight1.intensity = 4.2;
+      }
+    };
+
+    window.unfocusGraphNode = function() {
+      nodeMeshes.forEach(mesh => {
+        mesh.scale.set(mesh.userData.baseScale, mesh.userData.baseScale, mesh.userData.baseScale);
+      });
+      pointLight1.position.set(20, 25, 30);
+      pointLight1.intensity = 2.5;
+    };
+
+    /* ==============================================================================
+       WEB AUDIO SYNTHESIZER FOR HIGH-TECH TACTILE AUDIO FEEDBACK
+       ============================================================================== */
+    let audioCtx = null;
+    let audioEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+    }
+
+    window.toggleAudio = function() {
+      initAudio();
+      audioEnabled = !audioEnabled;
+      const btn = document.getElementById("btnAudioToggle");
+      if (btn) {
+        btn.innerHTML = audioEnabled ? "<span>🔊 Audio: ON</span>" : "<span>🔇 Audio: OFF</span>";
+        btn.classList.toggle("muted", !audioEnabled);
+      }
+      if (audioEnabled) playChime();
+    };
+
+    function playBlip() {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(1400, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(750, audioCtx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.035, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.04);
+      } catch (e) {}
+    }
+
+    function playChime() {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(980, audioCtx.currentTime + 0.07);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.07);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.07);
+      } catch (e) {}
+    }
+
+    function playSurge() {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      } catch (e) {}
+    }
+
+    /* ==============================================================================
+       INTERACTIVE TERMINAL TAB SWITCHER
+       ============================================================================== */
+    window.switchTermTab = function(panelIdx, tabIdx) {
+      playChime();
+      for (let t = 0; t < 3; t++) {
+        const btn = document.getElementById(`termTab${panelIdx}_${t}`);
+        const pane = document.getElementById(`termPane${panelIdx}_${t}`);
+        if (btn) btn.classList.toggle("active", t === tabIdx);
+        if (pane) pane.classList.toggle("active", t === tabIdx);
+      }
+    };
+
+    /* ==============================================================================
+       INTERACTIVE HOP STEP SCRUBBER
+       ============================================================================== */
+    window.selectHopStep = function(panelIdx, stepIdx) {
+      playBlip();
+      // Update scrubber pills
+      const count = panelIdx === 0 ? 4 : 3;
+      for (let s = 0; s < count; s++) {
+        const p = document.getElementById(`scrub${panelIdx}_${s}`);
+        if (p) p.classList.toggle("active", s === stepIdx);
+      }
+
+      // Update right terminal view
+      if (panelIdx === 0) {
+        // Switch to Tab 0
+        switchTermTab(0, 0);
+        for (let s = 0; s < 3; s++) {
+          const node = document.getElementById(`pipeStep0_${s}`);
+          if (node) node.classList.toggle("active-step", s === stepIdx);
+        }
+        // Focus 3D node
+        if (stepIdx === 0) focusGraphNode("TXN_782391");
+        else if (stepIdx === 1) focusGraphNode("DEV_293");
+        else if (stepIdx === 2) focusGraphNode("ACCT_4421");
+        else if (stepIdx === 3) focusGraphNode("CUST_8291");
+      } else if (panelIdx === 1) {
+        switchTermTab(1, stepIdx);
+        if (stepIdx === 0) focusGraphNode("CUST_8291");
+        else if (stepIdx === 1) focusGraphNode("DEV_293");
+        else if (stepIdx === 2) focusGraphNode("CASE_0872");
+      } else if (panelIdx === 2) {
+        switchTermTab(2, stepIdx);
+        if (stepIdx === 0) focusGraphNode("TXN_782391");
+        else if (stepIdx === 1) focusGraphNode("CUST_8291");
+        else if (stepIdx === 2) focusGraphNode("MERCH_29382");
+      }
+    };
+
+    /* ==============================================================================
+       RICH ENTITY HOVER DATA POPOVER
+       ============================================================================== */
+    const ENTITY_METADATA = {
+      wire: {
+        title: "TRANSACTION // TXN_782391",
+        badge: "$4,850.00 USD",
+        attrs: [
+          "Origin: Lagos NeoBank Express Gateway",
+          "Routing Target: ACCT_4421 (Mule Network)",
+          "Velocity: +480% above 90-day baseline",
+          "Action: Automated preventative hold"
+        ],
+        node: "TXN_782391"
+      },
+      accounts: {
+        title: "TIGERGRAPH TOPOLOGY // PARTITION 4",
+        badge: "14.2M VERTICES",
+        attrs: [
+          "Query Speed: 38ms (Multi-Hop)",
+          "Graph Type: Distributed GSQL Engine",
+          "Deep-Link Reach: Up to 6 Hops in real time"
+        ],
+        node: "CUST_8291"
+      },
+      DEV_293: {
+        title: "DEVICE FINGERPRINT // DEV_293",
+        badge: "TOR PROXY DETECTED",
+        attrs: [
+          "Hardware: Apple iPhone 15 Pro (A2848)",
+          "IP: 197.210.64.12 (Nigeria Tor Relay Node)",
+          "Collision: Active across 3 dormant bank accounts",
+          "Risk Score: 0.94 (CRITICAL)"
+        ],
+        node: "DEV_293"
+      },
+      CUST_8291: {
+        title: "CARDHOLDER PROFILE // CUST_8291",
+        badge: "MARCUS VANCE",
+        attrs: [
+          "Segment: Private Wealth Checking",
+          "Account Age: 4.2 Years (Good Standing)",
+          "Session State: Credential Compromised via Stealer Log",
+          "Action: Armed non-destructive step-up challenge"
+        ],
+        node: "CUST_8291"
+      },
+      latency: {
+        title: "ENGINE PERFORMANCE // GSQL BENCHMARK",
+        badge: "38 MILLISECONDS",
+        attrs: [
+          "Execution: Zero-copy in-memory traversal",
+          "Throughput: 14.2M vertices traversed",
+          "Memory Footprint: 2.4KB LangGraph state"
+        ],
+        node: "DEV_293"
+      },
+      confidence: {
+        title: "TOPOLOGY CONFIDENCE // MODEL R1",
+        badge: "81% CERTAINTY",
+        attrs: [
+          "Structural Correlation: High proxy match",
+          "Behavioral Divergence: +92% anomaly",
+          "Resolution: Strong graph evidence"
+        ],
+        node: "DEV_293"
+      },
+      sufficiency: {
+        title: "EVIDENCE SUFFICIENCY GATE // POL-ATO-01",
+        badge: "68% (REQ 85%)",
+        attrs: [
+          "State: Below 85% terminal freeze threshold",
+          "Prescription: Prevent blunt account lockout",
+          "Action: Deploy interactive Step-Up 2FA push"
+        ],
+        node: "CUST_8291"
+      },
+      stepup: {
+        title: "GOVERNANCE ACTION // STEP-UP 2FA",
+        badge: "NON-DESTRUCTIVE",
+        attrs: [
+          "Channel: Cryptographic In-App Push Prompt",
+          "Status: Armed for instant customer validation",
+          "Outcome: Preserves $140k CLV without false freezes"
+        ],
+        node: "CUST_8291"
+      },
+      "POL-ATO-01": {
+        title: "GRAPHRAG COMPLIANCE RULE // POL-ATO-01",
+        badge: "ACTIVE GOVERNANCE",
+        attrs: [
+          "Mandate: Zero unilateral account freezes below 85% sufficiency",
+          "Audit Trail: SHA-256 Ledger Record Generated",
+          "Precedent: Case C-0872 (89% Cosine Match)"
+        ],
+        node: "CASE_0872"
+      },
+      freeze: {
+        title: "DUAL-KEY AUTHORITY // $10,000+ GATE",
+        badge: "SENIOR APPROVAL REQ",
+        attrs: [
+          "Condition: Exceeds automated agent limit",
+          "Signers: Senior Fraud Lead + Auditor",
+          "Compliance: FinCEN SAR mandatory filing"
+        ],
+        node: "TXN_782391"
+      },
+      hash: {
+        title: "IMMUTABLE AUDIT PROOF // LEDGER RECORD",
+        badge: "0x9c48...38fa",
+        attrs: [
+          "Algorithm: SHA-256 State Commitment",
+          "Storage: TigerGraph Audit Vertex",
+          "Verification: Cryptographically Defensible"
+        ],
+        node: "MERCH_29382"
+      }
+    };
+
+    const popoverEl = document.getElementById("entityHoverPopover");
+
+    window.showEntityPreview = function(el, entityKey, event) {
+      playBlip();
+      const meta = ENTITY_METADATA[entityKey];
+      if (!meta || !popoverEl) return;
+
+      popoverEl.style.display = "block";
+      popoverEl.style.left = Math.min(window.innerWidth - 340, event.clientX + 14) + "px";
+      popoverEl.style.top = Math.min(window.innerHeight - 200, event.clientY + 14) + "px";
+
+      popoverEl.innerHTML = `
+        <div class="pop-title">
+          <span>${meta.title}</span>
+          <span style="color:#ff8533; font-size:10px; border:1px solid rgba(255,106,0,0.3); padding:1px 5px; border-radius:4px;">${meta.badge}</span>
+        </div>
+        ${meta.attrs.map(a => `<div class="pop-attr">• ${a}</div>`).join("")}
+        <div style="margin-top:8px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.08); font-size:10px; color:#38bdf8;">Click entity to open Investigation Workspace &rarr;</div>
+      `;
+
+      if (meta.node) focusGraphNode(meta.node);
+    };
+
+    window.hideEntityPreview = function() {
+      if (popoverEl) popoverEl.style.display = "none";
+      unfocusGraphNode();
+    };
+
+    /* ==============================================================================
+       KINETIC TEXT SCRAMBLER EFFECT
+       ============================================================================== */
+    const CYBER_CHARS = "01#@!$%&*=+-~░▒▓";
+    window.scrambleElementText = function(el, targetText) {
+      playBlip();
+      let iteration = 0;
+      const originalLines = targetText.split("\n");
+      const interval = setInterval(() => {
+        el.innerHTML = originalLines.map(line => {
+          return line.split("").map((char, index) => {
+            if (char === " " || char === "\n") return char;
+            if (index < iteration) return char;
+            return CYBER_CHARS[Math.floor(Math.random() * CYBER_CHARS.length)];
+          }).join("");
+        }).join("<br/>");
+
+        if (iteration >= 30) {
+          clearInterval(interval);
+          if (el.id === "heroHeading0") {
+            el.innerHTML = `SUBGRAPHS OVER<br/><span class="hero-gradient-text" data-scramble="STATIC ALERTS.">STATIC ALERTS.</span>`;
+          } else if (el.id === "heroHeading1") {
+            el.innerHTML = `UNCERTAINTY ISN'T FAILURE.<br/><span class="hero-gradient-text" data-scramble="IT'S GOVERNANCE.">IT'S GOVERNANCE.</span>`;
+          } else if (el.id === "heroHeading2") {
+            el.innerHTML = `AUTONOMOUS SPEED.<br/><span class="hero-gradient-text" data-scramble="HUMAN AUTHORITY.">HUMAN AUTHORITY.</span>`;
+          }
+        }
+        iteration += 2;
+      }, 30);
+    };
+
+    // Live Traversal Simulation Action
+    window.runLiveTraversalSimulation = function() {
+      playSurge();
+      const toast = document.getElementById("traversalLiveToast");
+      if (toast) {
+        toast.classList.add("active");
+        toast.innerHTML = `<span class="pulse-spark">⚡</span> <strong>GSQL Multi-Hop Traversal Active:</strong> Parallel link search from root <span style="color:#ff6a00; font-weight:700;">CUST_8291</span> &rarr; <span style="color:#dc2626; font-weight:700;">DEV_293</span> &rarr; <span style="color:#dc2626; font-weight:700;">ACCT_4421</span> (38ms)...`;
+      }
+
+      // Accelerate edge particles
+      edgeParticles.forEach(ep => {
+        ep.speed *= 2.8;
+      });
+
+      // Brighten line colors
+      lineMaterials.forEach(lm => {
+        lm.color.setHex(0xff3b00);
+        lm.opacity = 0.95;
+      });
+
+      setTimeout(() => {
+        playChime();
+        edgeParticles.forEach(ep => {
+          ep.speed /= 2.8;
+        });
+        lineMaterials.forEach((lm, idx) => {
+          lm.color.setHex(edgesData[idx].alert ? 0xff6a00 : 0x94a3b8);
+          lm.opacity = edgesData[idx].alert ? 0.7 : 0.3;
+        });
+
+        if (toast) {
+          toast.innerHTML = `✓ <strong>Multi-Hop Complete (38ms):</strong> Discovered 3-hop mule syndicate. Composite Risk: <span style="color:#dc2626; font-weight:700;">92% CRITICAL</span>. GSQL Audit Proof Ingested.`;
+          setTimeout(() => {
+            toast.classList.remove("active");
+          }, 5500);
+        }
+      }, 1500);
+    };
+
+    function onResize() {
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+    window.addEventListener('resize', onResize);
+
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
+
+      graphGroup.rotation.y += (targetRotY - graphGroup.rotation.y) * 0.04 + 0.0025;
+      graphGroup.rotation.x += (targetRotX - graphGroup.rotation.x) * 0.04;
+
+      nodeMeshes.forEach((mesh, idx) => {
+        const pulse = 1 + 0.08 * Math.sin(elapsed * 2.8 + idx * 0.9);
+        if (mesh !== hoveredMesh) {
+          mesh.scale.set(mesh.userData.baseScale * pulse, mesh.userData.baseScale * pulse, mesh.userData.baseScale * pulse);
+        }
+        mesh.position.y = mesh.userData.basePos.y + Math.sin(elapsed * 1.5 + idx) * 0.4;
+      });
+
+      haloMeshes.forEach((ring, idx) => {
+        ring.rotation.z += 0.015 * (idx % 2 === 0 ? 1 : -1);
+        ring.position.y = nodeMeshes[idx].position.y;
+        const ringScale = 1 + 0.15 * Math.sin(elapsed * 3.2 + idx);
+        ring.scale.set(ringScale, ringScale, 1);
+      });
+
+      edgeParticles.forEach(ep => {
+        ep.t += ep.speed;
+        if (ep.t > 1) ep.t = 0;
+        ep.mesh.position.lerpVectors(ep.from, ep.to, ep.t);
+      });
+
+      dustPoints.rotation.y = elapsed * 0.02;
+      dustPoints.rotation.x = elapsed * 0.01;
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+  })();
+  </script>
+</body>
+</html>
