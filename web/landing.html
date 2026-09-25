@@ -419,12 +419,11 @@
       padding: max(110px, calc(env(safe-area-inset-top, 0px) + 90px)) clamp(16px, 4vw, 48px) max(85px, calc(env(safe-area-inset-bottom, 0px) + 70px));
       opacity: 0;
       will-change: opacity, transform;
-    }
-
-    /* DUAL-PANE FROSTED GLASS EDITORIAL HUD CARD */
+    }    /* FROSTED GLASS EDITORIAL COMMAND CARD (CLEAN & CENTERED) */
     .panel-editorial-card {
-      max-width: 1240px;
-      width: 100%;
+      max-width: 860px;
+      width: 92%;
+      margin: 0 auto;
       background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(28px) saturate(180%);
       -webkit-backdrop-filter: blur(28px) saturate(180%);
@@ -434,14 +433,13 @@
         0 2px 8px rgba(13, 12, 11, 0.04),
         inset 0 1px 0 rgba(255, 255, 255, 0.95);
       border-radius: 32px;
-      padding: clamp(26px, 3.2vw, 42px);
+      padding: clamp(24px, 3.8vw, 44px) clamp(20px, 4.5vw, 52px);
       position: relative;
       pointer-events: auto;
-      display: grid;
-      grid-template-columns: 1.15fr 0.95fr;
-      gap: clamp(24px, 3vw, 40px);
-      align-items: stretch;
-      text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
       transition: transform 0.3s var(--ease), box-shadow 0.3s;
     }
     .panel-editorial-card:hover {
@@ -449,15 +447,6 @@
         0 32px 75px -12px rgba(255, 106, 0, 0.10),
         0 4px 12px rgba(13, 12, 11, 0.05),
         inset 0 1px 0 rgba(255, 255, 255, 1);
-    }
-
-    /* LEFT PANE: COMMANDING EDITORIAL NARRATIVE */
-    .editorial-narrative {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-      z-index: 2;
     }
 
     .eyebrow {
@@ -475,7 +464,6 @@
       border-radius: 999px;
       background: rgba(255, 106, 0, 0.09);
       border: 1px solid rgba(255, 106, 0, 0.25);
-      width: fit-content;
     }
     .eyebrow-dot {
       width: 7px;
@@ -490,12 +478,13 @@
     .hero-heading {
       font-family: var(--font-display) !important;
       font-weight: 850 !important;
-      font-size: clamp(32px, 3.8vw, 56px) !important;
-      line-height: 1.02 !important;
+      font-size: clamp(32px, 4.8vw, 64px) !important;
+      line-height: 1.04 !important;
       letter-spacing: -0.04em !important;
       color: var(--fg-heading) !important;
-      margin-bottom: 16px;
+      margin: 0 auto 16px;
       text-wrap: balance;
+      max-width: 18ch;
     }
     .hero-gradient-text {
       font-style: italic;
@@ -511,12 +500,13 @@
 
     /* INTERACTIVE SUBTITLE & ENTITY TAGS */
     .hero-subtext {
-      font-size: clamp(14.5px, 1.1vw, 16.5px) !important;
-      line-height: 1.6 !important;
+      font-size: clamp(14.5px, 1.25vw, 17.5px) !important;
+      line-height: 1.8 !important;
       letter-spacing: -0.01em !important;
       color: #334155 !important;
       font-weight: 450;
-      margin-bottom: 20px;
+      margin: 0 auto 20px;
+      max-width: 60ch;
       text-wrap: pretty;
     }
 
@@ -524,12 +514,15 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 2px 8px;
+      padding: 1px 7px;
+      margin: 1px 2px;
+      vertical-align: baseline;
+      line-height: 1.35;
       border-radius: 6px;
       background: rgba(13, 12, 11, 0.05);
       border: 1px solid rgba(13, 12, 11, 0.14);
       font-family: var(--font-mono);
-      font-size: 0.9em;
+      font-size: 0.88em;
       font-weight: 600;
       color: #0f172a;
       cursor: pointer;
@@ -557,12 +550,13 @@
     /* INTERACTIVE STEP SCRUBBER PILLS */
     .hop-scrubber {
       display: flex;
+      justify-content: center;
       gap: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
       flex-wrap: wrap;
     }
     .scrub-pill {
-      padding: 6px 12px;
+      padding: 6px 13px;
       border-radius: 999px;
       font-family: var(--font-mono);
       font-size: 11px;
@@ -597,20 +591,23 @@
       background: rgba(13, 12, 11, 0.4);
     }
 
-    /* METRIC STRIP ATTACHED TO NARRATIVE */
+    /* METRIC STRIP (RESPONSIVE 3 TILES) */
     .metric-strip {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 22px;
+      gap: 12px;
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto 24px;
     }
     .metric-card {
       background: #ffffff;
       border: 1px solid var(--rule);
       border-radius: 14px;
-      padding: 10px 14px;
+      padding: 12px 14px;
       box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03);
       cursor: pointer;
+      text-align: center;
       transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
     .metric-card:hover {
@@ -620,7 +617,7 @@
     }
     .metric-val {
       font-family: var(--font-mono);
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
       color: var(--fg-heading);
       line-height: 1;
@@ -640,23 +637,25 @@
     .cta-row {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       align-items: center;
       gap: 12px;
+      width: 100%;
     }
     .cta-row .pill {
-      height: 44px;
-      padding: 0 24px;
-      font-size: 13.5px;
+      height: 46px;
+      padding: 0 26px;
+      font-size: 14px;
     }
     .btn-secondary {
-      height: 44px;
-      padding: 0 20px;
+      height: 46px;
+      padding: 0 22px;
       border-radius: 999px;
       border: 1px solid var(--rule);
       background: #ffffff;
       color: var(--fg);
       text-decoration: none;
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
@@ -672,13 +671,13 @@
     }
 
     .btn-simulate-traversal {
-      height: 44px;
-      padding: 0 20px;
+      height: 46px;
+      padding: 0 22px;
       border-radius: 999px;
       border: 1px solid rgba(255, 106, 0, 0.35);
       background: linear-gradient(135deg, rgba(255, 106, 0, 0.12) 0%, rgba(255, 59, 0, 0.06) 100%);
       color: var(--orange);
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 700;
       font-family: var(--font-mono);
       display: inline-flex;
@@ -692,180 +691,6 @@
       color: #ffffff;
       box-shadow: 0 8px 24px rgba(255, 106, 0, 0.3);
       transform: translateY(-2px);
-    }
-
-    /* RIGHT PANE: INTERACTIVE SUBGRAPH & GSQL INTELLIGENCE TERMINAL */
-    .editorial-terminal {
-      background: #090d16;
-      border: 1px solid rgba(255, 106, 0, 0.3);
-      border-radius: 20px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
-      position: relative;
-    }
-    .terminal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      background: rgba(255, 255, 255, 0.04);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .term-dots {
-      display: flex;
-      gap: 6px;
-    }
-    .term-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-    }
-    .term-dot.r { background: #ef4444; }
-    .term-dot.y { background: #f59e0b; }
-    .term-dot.g { background: #10b981; }
-    .term-tabs {
-      display: flex;
-      gap: 4px;
-    }
-    .term-tab {
-      padding: 5px 11px;
-      border-radius: 6px;
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .term-tab:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.06);
-    }
-    .term-tab.active {
-      color: #ff6a00;
-      background: rgba(255, 106, 0, 0.15);
-    }
-    .term-body {
-      padding: 18px;
-      font-family: var(--font-mono);
-      font-size: 11.5px;
-      line-height: 1.6;
-      color: #cbd5e1;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .term-tab-pane {
-      display: none;
-    }
-    .term-tab-pane.active {
-      display: block;
-      animation: fadeIn 0.25s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* TERMINAL TAB 1: VISUAL NODE PIPELINE */
-    .pipe-step-node {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      margin-bottom: 8px;
-      transition: all 0.2s;
-    }
-    .pipe-step-node:hover {
-      border-color: rgba(255, 106, 0, 0.4);
-      background: rgba(255, 106, 0, 0.06);
-    }
-    .pipe-step-node.active-step {
-      border-color: var(--orange);
-      background: rgba(255, 106, 0, 0.12);
-    }
-    .pipe-icon-badge {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-    }
-    .pipe-icon-badge.blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-    .pipe-icon-badge.red { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-    .pipe-icon-badge.purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
-    .pipe-icon-badge.orange { background: rgba(255, 106, 0, 0.2); color: #ff8533; }
-    .pipe-icon-badge.green { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-    .pipe-step-info {
-      flex: 1;
-    }
-    .pipe-step-title {
-      font-weight: 700;
-      color: #ffffff;
-      font-size: 11.5px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .pipe-step-desc {
-      font-size: 10px;
-      color: #94a3b8;
-    }
-
-    /* CODE BOX FOR GSQL */
-    .gsql-code-box {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-      padding: 12px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      line-height: 1.55;
-      color: #f1f5f9;
-      white-space: pre-wrap;
-      overflow-x: auto;
-    }
-    .gsql-code-box .kw { color: #f43f5e; font-weight: 600; }
-    .gsql-code-box .fn { color: #38bdf8; }
-    .gsql-code-box .str { color: #34d399; }
-    .gsql-code-box .cm { color: #64748b; font-style: italic; }
-
-    .term-footer-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 10.5px;
-    }
-    .btn-term-action {
-      background: rgba(255, 106, 0, 0.16);
-      border: 1px solid rgba(255, 106, 0, 0.4);
-      color: #ff8533;
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-term-action:hover {
-      background: #ff6a00;
-      color: #ffffff;
-      border-color: #ff6a00;
     }
 
     /* FLOATING ENTITY HOVER POPOVER */
@@ -935,8 +760,8 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      margin-top: 14px;
-      padding: 9px 18px;
+      margin-top: 16px;
+      padding: 10px 20px;
       border-radius: 999px;
       background: rgba(255, 106, 0, 0.09);
       border: 1px solid rgba(255, 106, 0, 0.35);
@@ -990,34 +815,144 @@
       min-height: 3600px;
     }
 
-    /* RESPONSIVE */
+    /* COMPREHENSIVE RESPONSIVE DESIGN */
     @media (max-width: 1024px) {
       .panel-editorial-card {
-        grid-template-columns: 1fr;
-        max-width: 680px;
-        padding: 24px;
-        border-radius: 24px;
+        max-width: 90vw;
+        padding: clamp(20px, 3vw, 36px);
       }
-      .editorial-terminal {
-        margin-top: 14px;
+      .metric-strip {
+        max-width: 100%;
       }
     }
-    @media (max-width: 860px) {
-      .nav a:not(.pill) { display: none; }
-      .nav .nav-login-btn { display: inline-flex !important; }
+    @media (max-width: 768px) {
+      .chrome {
+        padding: 8px 12px;
+        gap: 6px;
+      }
+      .brand-wrap {
+        gap: 6px;
+      }
+      .brand-logo-svg svg {
+        width: 120px;
+        height: 30px;
+      }
+      .brand-tag { display: none; }
+      .nav {
+        gap: 6px;
+        display: flex;
+        align-items: center;
+      }
+      .nav a:not(.pill):not(.nav-login-btn) { display: none; }
+      .nav .nav-login-btn {
+        display: inline-flex !important;
+        font-size: 11.5px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .audio-toggle-btn {
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+      .audio-toggle-btn span {
+        display: none;
+      }
+      .audio-toggle-btn::after {
+        content: "🔊";
+      }
+      .nav .pill {
+        height: 34px;
+        padding: 0 12px;
+        font-size: 11.5px;
+        white-space: nowrap;
+      }
       .hud-telemetry { display: none; }
-      .hop-stepper-wrap { display: none; }
-      .hero-heading { font-size: clamp(30px, 7vw, 44px) !important; }
-      .hero-subtext { font-size: 14.5px !important; }
-      .metric-strip { gap: 6px; }
-      .metric-card { padding: 8px 10px; }
-      .panel-editorial-card { padding: 20px 16px; }
+      .hop-stepper-wrap {
+        top: 54px;
+        max-width: 96vw;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 4px;
+        padding: 3px 6px;
+        scrollbar-width: none;
+      }
+      .step-chip {
+        padding: 5px 9px;
+        font-size: 10.5px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .panels {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .panel {
+        padding: 102px 12px 64px;
+        justify-content: flex-start;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .panel-editorial-card {
+        padding: 18px 14px;
+        border-radius: 20px;
+        max-width: 100%;
+        width: 100%;
+        margin: 0 auto;
+      }
+      .hero-heading {
+        font-size: clamp(24px, 6.8vw, 36px) !important;
+        line-height: 1.1 !important;
+        margin-bottom: 12px !important;
+      }
+      .hero-subtext {
+        font-size: 13.5px !important;
+        line-height: 1.75 !important;
+        margin-bottom: 16px !important;
+      }
+      .metric-strip {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        max-width: 100%;
+        margin-bottom: 16px;
+      }
+      .metric-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        text-align: left;
+      }
+      .metric-lbl {
+        margin-top: 0;
+      }
+      .cta-row {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+      }
+      .cta-row .pill,
+      .cta-row .btn-secondary,
+      .cta-row .btn-simulate-traversal {
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+        text-align: center;
+        height: 42px;
+        font-size: 13px;
+      }
+      .hop-scrubber {
+        gap: 5px;
+        margin-bottom: 16px;
+      }
+      .scrub-pill {
+        font-size: 10px;
+        padding: 5px 9px;
+      }
     }
     @media (max-width: 480px) {
-      .brand-tag { display: none; }
-      .nav .pill { height: 36px; padding: 0 14px; font-size: 13px; }
-      .hero-heading { font-size: 26px !important; }
-      .cta-row .pill, .btn-secondary, .btn-simulate-traversal { width: 100%; max-width: 300px; }
+      .hero-heading { font-size: 22px !important; }
+      .eyebrow { font-size: 9px; padding: 4px 8px; }
+      .nav .pill { padding: 0 10px; font-size: 11px; }
     }
   </style>
 </head>
@@ -1126,162 +1061,67 @@
     <section class="panel" data-panel="0">
       <div class="panel-editorial-card">
         
-        <!-- LEFT COLUMN: EDITORIAL NARRATIVE -->
-        <div class="editorial-narrative">
-          <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            <span>HOP 01 • ANOMALY INGESTION • CASE C-1024</span>
-          </div>
-          
-          <h1 class="hero-heading" id="heroHeading0" onmouseenter="scrambleElementText(this, 'SUBGRAPHS OVER\nSTATIC ALERTS.')">
-            SUBGRAPHS OVER<br/>
-            <span class="hero-gradient-text" data-scramble="STATIC ALERTS.">STATIC ALERTS.</span>
-          </h1>
-          
-          <p class="hero-subtext">
-            When an unusual <span class="graph-entity-chip alert-chip" data-id="wire" onmouseenter="showEntityPreview(this, 'wire', event)" onmouseleave="hideEntityPreview()">$4,850 wire</span> sparks in Lagos, TigerGraph triggers instant multi-hop traversal across <span class="graph-entity-chip" data-id="accounts" onmouseenter="showEntityPreview(this, 'accounts', event)" onmouseleave="hideEntityPreview()">14.2M accounts</span>—unmasking proxy fingerprint <span class="graph-entity-chip" data-id="DEV_293" onmouseenter="showEntityPreview(this, 'DEV_293', event)" onmouseleave="hideEntityPreview()">DEV_293</span> and victim <span class="graph-entity-chip" data-id="CUST_8291" onmouseenter="showEntityPreview(this, 'CUST_8291', event)" onmouseleave="hideEntityPreview()">CUST_8291</span> in under <span class="graph-entity-chip" data-id="latency" onmouseenter="showEntityPreview(this, 'latency', event)" onmouseleave="hideEntityPreview()">38ms</span>.
-          </p>
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          <span>HOP 01 • ANOMALY INGESTION • CASE C-1024</span>
+        </div>
+        
+        <h1 class="hero-heading" id="heroHeading0" onmouseenter="scrambleElementText(this, 'SUBGRAPHS OVER\nSTATIC ALERTS.')">
+          SUBGRAPHS OVER<br/>
+          <span class="hero-gradient-text" data-scramble="STATIC ALERTS.">STATIC ALERTS.</span>
+        </h1>
+        
+        <p class="hero-subtext">
+          When an unusual <span class="graph-entity-chip alert-chip" data-id="wire" onmouseenter="showEntityPreview(this, 'wire', event)" onmouseleave="hideEntityPreview()">$4,850 wire</span> sparks in Lagos, TigerGraph triggers instant multi-hop traversal across <span class="graph-entity-chip" data-id="accounts" onmouseenter="showEntityPreview(this, 'accounts', event)" onmouseleave="hideEntityPreview()">14.2M accounts</span>—unmasking proxy fingerprint <span class="graph-entity-chip" data-id="DEV_293" onmouseenter="showEntityPreview(this, 'DEV_293', event)" onmouseleave="hideEntityPreview()">DEV_293</span> and victim <span class="graph-entity-chip" data-id="CUST_8291" onmouseenter="showEntityPreview(this, 'CUST_8291', event)" onmouseleave="hideEntityPreview()">CUST_8291</span> in under <span class="graph-entity-chip" data-id="latency" onmouseenter="showEntityPreview(this, 'latency', event)" onmouseleave="hideEntityPreview()">38ms</span>.
+        </p>
 
-          <!-- Interactive Step Scrubber -->
-          <div class="hop-scrubber">
-            <button class="scrub-pill active" id="scrub0_0" onclick="selectHopStep(0, 0)">
-              <span class="scrub-dot"></span>
-              <span>01 Spark $4.8K</span>
-            </button>
-            <button class="scrub-pill" id="scrub0_1" onclick="selectHopStep(0, 1)">
-              <span class="scrub-dot"></span>
-              <span>02 Proxy DEV_293</span>
-            </button>
-            <button class="scrub-pill" id="scrub0_2" onclick="selectHopStep(0, 2)">
-              <span class="scrub-dot"></span>
-              <span>03 Mule Path</span>
-            </button>
-            <button class="scrub-pill" id="scrub0_3" onclick="selectHopStep(0, 3)">
-              <span class="scrub-dot"></span>
-              <span>04 Step-Up 2FA</span>
-            </button>
-          </div>
-
-          <!-- Metric Strip -->
-          <div class="metric-strip">
-            <div class="metric-card" onclick="runLiveTraversalSimulation()" title="Click to trigger parallel graph traversal benchmark">
-              <div class="metric-val highlight">14.2M</div>
-              <div class="metric-lbl">Vertices Traversed</div>
-            </div>
-            <div class="metric-card" onclick="focusGraphNode('DEV_293')" title="Click to inspect composite risk breakdown">
-              <div class="metric-val alert">92%</div>
-              <div class="metric-lbl">Composite Risk</div>
-            </div>
-            <div class="metric-card" onclick="focusGraphNode('ACCT_4421')" title="Click to highlight syndicate mule path">
-              <div class="metric-val">3-Hop</div>
-              <div class="metric-lbl">Mule Ring Depth</div>
-            </div>
-          </div>
-
-          <!-- Action CTAs -->
-          <div class="cta-row">
-            <a class="pill" href="/dashboard?tab=investigate">Launch Cockpit →</a>
-            <button class="btn-simulate-traversal" onclick="runLiveTraversalSimulation()">
-              <span class="pulse-spark">⚡</span> Run Multi-Hop (38ms)
-            </button>
-            <button class="btn-secondary" onclick="scrollToHop(1)">Hop 02 ↓</button>
-          </div>
-
-          <!-- Live Simulation Toast Banner -->
-          <div class="traversal-live-toast" id="traversalLiveToast"></div>
+        <!-- Interactive Step Scrubber -->
+        <div class="hop-scrubber">
+          <button class="scrub-pill active" id="scrub0_0" onclick="selectHopStep(0, 0)">
+            <span class="scrub-dot"></span>
+            <span>01 Spark $4.8K</span>
+          </button>
+          <button class="scrub-pill" id="scrub0_1" onclick="selectHopStep(0, 1)">
+            <span class="scrub-dot"></span>
+            <span>02 Proxy DEV_293</span>
+          </button>
+          <button class="scrub-pill" id="scrub0_2" onclick="selectHopStep(0, 2)">
+            <span class="scrub-dot"></span>
+            <span>03 Mule Path</span>
+          </button>
+          <button class="scrub-pill" id="scrub0_3" onclick="selectHopStep(0, 3)">
+            <span class="scrub-dot"></span>
+            <span>04 Step-Up 2FA</span>
+          </button>
         </div>
 
-        <!-- RIGHT COLUMN: INTERACTIVE SUBGRAPH & GSQL INTELLIGENCE TERMINAL -->
-        <div class="editorial-terminal">
-          <div class="terminal-header">
-            <div class="term-dots">
-              <span class="term-dot r"></span>
-              <span class="term-dot y"></span>
-              <span class="term-dot g"></span>
-            </div>
-            <div class="term-tabs">
-              <button class="term-tab active" id="termTab0_0" onclick="switchTermTab(0, 0)">⚡ Live Traversal</button>
-              <button class="term-tab" id="termTab0_1" onclick="switchTermTab(0, 1)">📜 GSQL Query</button>
-              <button class="term-tab" id="termTab0_2" onclick="switchTermTab(0, 2)">🧠 LangGraph</button>
-            </div>
+        <!-- Metric Strip -->
+        <div class="metric-strip">
+          <div class="metric-card" onclick="runLiveTraversalSimulation()" title="Click to trigger parallel graph traversal benchmark">
+            <div class="metric-val highlight">14.2M</div>
+            <div class="metric-lbl">Vertices Traversed</div>
           </div>
-
-          <div class="term-body">
-            <!-- TAB 0: LIVE TRAVERSAL PIPELINE -->
-            <div class="term-tab-pane active" id="termPane0_0">
-              <div class="pipe-step-node" id="pipeStep0_0" onclick="focusGraphNode('TXN_782391')">
-                <span class="pipe-icon-badge blue">01</span>
-                <div class="pipe-step-info">
-                  <div class="pipe-step-title"><span>Root Ingestion: TXN_782391</span><span style="color:#ff8533;">$4,850.00</span></div>
-                  <div class="pipe-step-desc">Wire anomaly sparked from unverified Lagos NeoBank IP (197.210.64.12)</div>
-                </div>
-              </div>
-
-              <div class="pipe-step-node active-step" id="pipeStep0_1" onclick="focusGraphNode('DEV_293')">
-                <span class="pipe-icon-badge red">02</span>
-                <div class="pipe-step-info">
-                  <div class="pipe-step-title"><span>Device Pivot: DEV_293</span><span style="color:#ef4444;">TOR PROXY</span></div>
-                  <div class="pipe-step-desc">iPhone 15 Pro hardware hash matched across 3 distinct dormant accounts</div>
-                </div>
-              </div>
-
-              <div class="pipe-step-node" id="pipeStep0_2" onclick="focusGraphNode('ACCT_4421')">
-                <span class="pipe-icon-badge purple">03</span>
-                <div class="pipe-step-info">
-                  <div class="pipe-step-title"><span>Mule Ring: ACCT_4421 ➔ ACCT_9923</span><span style="color:#c084fc;">OFF-RAMP</span></div>
-                  <div class="pipe-step-desc">3-hop rapid liquidation chain routed to CryptoLiquidity X exchange</div>
-                </div>
-              </div>
-
-              <div class="term-footer-bar">
-                <div><span style="color:#10b981;">●</span> Subgraph Latency: <strong style="color:#ffffff;">38ms</strong> &nbsp;|&nbsp; Vertices: <strong style="color:#ffffff;">14.2M</strong></div>
-                <button class="btn-term-action" onclick="runLiveTraversalSimulation()">⚡ RE-RUN</button>
-              </div>
-            </div>
-
-            <!-- TAB 1: GSQL QUERY CODE -->
-            <div class="term-tab-pane" id="termPane0_1">
-              <div class="gsql-code-box"><span class="cm">/* TigerGraph Autonomous 3-Hop Traversal */</span>
-<span class="kw">INTERPRET QUERY</span> (VERTEX&lt;Customer&gt; root_cust) <span class="kw">FOR GRAPH</span> FraudNetwork {
-  Start = { root_cust };
-  <span class="cm">// Hop 1: Resolve proxy hardware fingerprint</span>
-  Hop1 = <span class="kw">SELECT</span> d <span class="kw">FROM</span> Start -(LOGGED_INTO:e)- Device:d;
-  <span class="cm">// Hop 2: Identify shared syndicate accounts</span>
-  Hop2 = <span class="kw">SELECT</span> m <span class="kw">FROM</span> Hop1 -(SHARED_DEVICE:e)- CardAccount:m;
-  <span class="cm">// Hop 3: Detect liquidation off-ramps</span>
-  Hop3 = <span class="kw">SELECT</span> x <span class="kw">FROM</span> Hop2 -(ROUTED_TO:e)- Merchant:x;
-  <span class="kw">PRINT</span> Hop1, Hop2, Hop3 <span class="kw">WHERE</span> m.mule_score &gt; <span class="str">0.85</span>;
-}</div>
-              <div class="term-footer-bar">
-                <span style="color:#94a3b8;">GSQL v3.9 Compiler • Zero-copy traversal</span>
-                <button class="btn-term-action" onclick="runLiveTraversalSimulation()">▶ RUN GSQL (38ms)</button>
-              </div>
-            </div>
-
-            <!-- TAB 2: LANGGRAPH AGENT REASONING -->
-            <div class="term-tab-pane" id="termPane0_2">
-              <div style="display:flex; flex-direction:column; gap:8px;">
-                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:9px;">
-                  <div style="font-weight:700; color:#38bdf8; font-size:11px;">1. PERCEPTION &amp; SUBGRAPH PROBE</div>
-                  <div style="color:#94a3b8; font-size:10px; margin-top:2px;">Discovered high-risk Lagos proxy IP 197.210.64.12 tied to hardware collision.</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:9px;">
-                  <div style="font-weight:700; color:#ff8533; font-size:11px;">2. SUFFICIENCY CALIBRATION</div>
-                  <div style="color:#94a3b8; font-size:10px; margin-top:2px;">Confidence = 81%, Sufficiency = 68% (&lt; 85% requirement). Blunt freeze denied.</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:9px;">
-                  <div style="font-weight:700; color:#10b981; font-size:11px;">3. GOVERNED EXECUTION (POL-ATO-01)</div>
-                  <div style="color:#94a3b8; font-size:10px; margin-top:2px;">Non-destructive Step-Up 2FA challenge delivered. FinCEN SAR narrative formulated.</div>
-                </div>
-              </div>
-              <div class="term-footer-bar">
-                <span style="color:#94a3b8;">LangGraph v0.2 • Memory Match: C-0872</span>
-                <a href="/dashboard?tab=investigate" class="btn-term-action" style="text-decoration:none;">VIEW TRACE →</a>
-              </div>
-            </div>
-
+          <div class="metric-card" onclick="focusGraphNode('DEV_293')" title="Click to inspect composite risk breakdown">
+            <div class="metric-val alert">92%</div>
+            <div class="metric-lbl">Composite Risk</div>
+          </div>
+          <div class="metric-card" onclick="focusGraphNode('ACCT_4421')" title="Click to highlight syndicate mule path">
+            <div class="metric-val">3-Hop</div>
+            <div class="metric-lbl">Mule Ring Depth</div>
           </div>
         </div>
+
+        <!-- Action CTAs -->
+        <div class="cta-row">
+          <a class="pill" href="/dashboard?tab=investigate">Launch Cockpit →</a>
+          <button class="btn-simulate-traversal" onclick="runLiveTraversalSimulation()">
+            <span class="pulse-spark">⚡</span> Run Multi-Hop (38ms)
+          </button>
+          <button class="btn-secondary" onclick="scrollToHop(1)">Hop 02 ↓</button>
+        </div>
+
+        <!-- Live Simulation Toast Banner -->
+        <div class="traversal-live-toast" id="traversalLiveToast"></div>
 
       </div>
     </section>
@@ -1290,147 +1130,57 @@
     <section class="panel" data-panel="1">
       <div class="panel-editorial-card">
         
-        <!-- LEFT COLUMN: EDITORIAL NARRATIVE -->
-        <div class="editorial-narrative">
-          <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            <span>HOP 02 • AGENT REASONING &amp; SUFFICIENCY</span>
-          </div>
-          
-          <h1 class="hero-heading" id="heroHeading1" onmouseenter="scrambleElementText(this, 'UNCERTAINTY ISN\'T FAILURE.\nIT\'S GOVERNANCE.')">
-            UNCERTAINTY ISN'T FAILURE.<br/>
-            <span class="hero-gradient-text" data-scramble="IT'S GOVERNANCE.">IT'S GOVERNANCE.</span>
-          </h1>
-          
-          <p class="hero-subtext">
-            With <span class="graph-entity-chip" data-id="confidence" onmouseenter="showEntityPreview(this, 'confidence', event)" onmouseleave="hideEntityPreview()">81% topology confidence</span> but only <span class="graph-entity-chip alert-chip" data-id="sufficiency" onmouseenter="showEntityPreview(this, 'sufficiency', event)" onmouseleave="hideEntityPreview()">68% sufficiency</span>, our autonomous agent refuses blunt terminal freezes—prescribing non-destructive <span class="graph-entity-chip" data-id="stepup" onmouseenter="showEntityPreview(this, 'stepup', event)" onmouseleave="hideEntityPreview()">Step-Up 2FA</span> and evaluating GraphRAG rule <span class="graph-entity-chip" data-id="POL-ATO-01" onmouseenter="showEntityPreview(this, 'POL-ATO-01', event)" onmouseleave="hideEntityPreview()">POL-ATO-01</span>.
-          </p>
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          <span>HOP 02 • AGENT REASONING &amp; SUFFICIENCY</span>
+        </div>
+        
+        <h1 class="hero-heading" id="heroHeading1" onmouseenter="scrambleElementText(this, 'UNCERTAINTY ISN\'T FAILURE.\nIT\'S GOVERNANCE.')">
+          UNCERTAINTY ISN'T FAILURE.<br/>
+          <span class="hero-gradient-text" data-scramble="IT'S GOVERNANCE.">IT'S GOVERNANCE.</span>
+        </h1>
+        
+        <p class="hero-subtext">
+          With <span class="graph-entity-chip" data-id="confidence" onmouseenter="showEntityPreview(this, 'confidence', event)" onmouseleave="hideEntityPreview()">81% topology confidence</span> but only <span class="graph-entity-chip alert-chip" data-id="sufficiency" onmouseenter="showEntityPreview(this, 'sufficiency', event)" onmouseleave="hideEntityPreview()">68% sufficiency</span>, our autonomous agent refuses blunt terminal freezes—prescribing non-destructive <span class="graph-entity-chip" data-id="stepup" onmouseenter="showEntityPreview(this, 'stepup', event)" onmouseleave="hideEntityPreview()">Step-Up 2FA</span> and evaluating GraphRAG rule <span class="graph-entity-chip" data-id="POL-ATO-01" onmouseenter="showEntityPreview(this, 'POL-ATO-01', event)" onmouseleave="hideEntityPreview()">POL-ATO-01</span>.
+        </p>
 
-          <!-- Interactive Selector -->
-          <div class="hop-scrubber">
-            <button class="scrub-pill active" id="scrub1_0" onclick="selectHopStep(1, 0)">
-              <span class="scrub-dot"></span>
-              <span>Sufficiency 68%</span>
-            </button>
-            <button class="scrub-pill" id="scrub1_1" onclick="selectHopStep(1, 1)">
-              <span class="scrub-dot"></span>
-              <span>Rule POL-ATO-01</span>
-            </button>
-            <button class="scrub-pill" id="scrub1_2" onclick="selectHopStep(1, 2)">
-              <span class="scrub-dot"></span>
-              <span>Vector Memory C-0872</span>
-            </button>
-          </div>
+        <!-- Interactive Selector -->
+        <div class="hop-scrubber">
+          <button class="scrub-pill active" id="scrub1_0" onclick="selectHopStep(1, 0)">
+            <span class="scrub-dot"></span>
+            <span>Sufficiency 68%</span>
+          </button>
+          <button class="scrub-pill" id="scrub1_1" onclick="selectHopStep(1, 1)">
+            <span class="scrub-dot"></span>
+            <span>Rule POL-ATO-01</span>
+          </button>
+          <button class="scrub-pill" id="scrub1_2" onclick="selectHopStep(1, 2)">
+            <span class="scrub-dot"></span>
+            <span>Vector Memory C-0872</span>
+          </button>
+        </div>
 
-          <!-- Metric Strip -->
-          <div class="metric-strip">
-            <div class="metric-card" title="Evidence Sufficiency required: 85%">
-              <div class="metric-val">68%</div>
-              <div class="metric-lbl">Sufficiency (Req 85%)</div>
-            </div>
-            <div class="metric-card" onclick="window.location.href='/dashboard?tab=policies'" title="View GraphRAG compliance policy POL-ATO-01">
-              <div class="metric-val highlight">POL-ATO-01</div>
-              <div class="metric-lbl">GraphRAG Rule</div>
-            </div>
-            <div class="metric-card" onclick="window.location.href='/dashboard?tab=case-memory'" title="Inspect vector memory case match C-0872">
-              <div class="metric-val alert">C-0872</div>
-              <div class="metric-lbl">Vector Memory Match</div>
-            </div>
+        <!-- Metric Strip -->
+        <div class="metric-strip">
+          <div class="metric-card" title="Evidence Sufficiency required: 85%">
+            <div class="metric-val">68%</div>
+            <div class="metric-lbl">Sufficiency (Req 85%)</div>
           </div>
-
-          <!-- Action CTAs -->
-          <div class="cta-row">
-            <a class="pill" href="/dashboard?tab=workspace">Inspect Next Best Action →</a>
-            <a class="btn-secondary" href="/dashboard?tab=policies">View Policy Matrix</a>
-            <button class="btn-secondary" onclick="scrollToHop(2)">Hop 03 ↓</button>
+          <div class="metric-card" onclick="window.location.href='/dashboard?tab=policies'" title="View GraphRAG compliance policy POL-ATO-01">
+            <div class="metric-val highlight">POL-ATO-01</div>
+            <div class="metric-lbl">GraphRAG Rule</div>
+          </div>
+          <div class="metric-card" onclick="window.location.href='/dashboard?tab=case-memory'" title="Inspect vector memory case match C-0872">
+            <div class="metric-val alert">C-0872</div>
+            <div class="metric-lbl">Vector Memory Match</div>
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: INTERACTIVE SUFFICIENCY CALIBRATOR & POLICY ENGINE -->
-        <div class="editorial-terminal">
-          <div class="terminal-header">
-            <div class="term-dots">
-              <span class="term-dot r"></span>
-              <span class="term-dot y"></span>
-              <span class="term-dot g"></span>
-            </div>
-            <div class="term-tabs">
-              <button class="term-tab active" id="termTab1_0" onclick="switchTermTab(1, 0)">📊 Sufficiency Gauge</button>
-              <button class="term-tab" id="termTab1_1" onclick="switchTermTab(1, 1)">🛡️ GraphRAG Rule</button>
-              <button class="term-tab" id="termTab1_2" onclick="switchTermTab(1, 2)">🔍 Prior Match</button>
-            </div>
-          </div>
-
-          <div class="term-body">
-            <!-- TAB 0: SUFFICIENCY GAUGE -->
-            <div class="term-tab-pane active" id="termPane1_0">
-              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px; margin-bottom:12px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                  <span style="font-weight:700; color:#ffffff;">Evidence Sufficiency Score</span>
-                  <span style="font-weight:700; color:#f59e0b;">68.4% (Threshold: 85%)</span>
-                </div>
-                <div style="height:8px; border-radius:4px; background:rgba(255,255,255,0.1); overflow:hidden; position:relative;">
-                  <div style="height:100%; width:68%; background:linear-gradient(90deg, #f59e0b, #ff8533); border-radius:4px;"></div>
-                  <div style="position:absolute; left:85%; top:0; bottom:0; width:2px; background:#10b981;" title="85% Hard Gate Threshold"></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:9.5px; color:#64748b; margin-top:6px;">
-                  <span>0% (Hypothesis)</span>
-                  <span style="color:#10b981;">▲ Required: 85%</span>
-                  <span>100% (Certainty)</span>
-                </div>
-              </div>
-
-              <div class="pipe-step-node active-step" style="border-color:#f59e0b; background:rgba(245,158,11,0.08);">
-                <span class="pipe-icon-badge orange">⚖</span>
-                <div class="pipe-step-info">
-                  <div class="pipe-step-title"><span>Governed Policy Decision</span><span style="color:#38bdf8;">NON-DESTRUCTIVE</span></div>
-                  <div class="pipe-step-desc">Sufficiency under 85% prevents destructive account freezes; arms Step-Up OTP challenge.</div>
-                </div>
-              </div>
-
-              <div class="term-footer-bar">
-                <div><span style="color:#f59e0b;">●</span> Decision: <strong style="color:#ffffff;">CHALLENGE_2FA</strong> &nbsp;|&nbsp; Route: <strong style="color:#ffffff;">L1 Auto-Armed</strong></div>
-                <a href="/dashboard?tab=workspace" class="btn-term-action" style="text-decoration:none;">VIEW NBA MATRIX →</a>
-              </div>
-            </div>
-
-            <!-- TAB 1: GRAPHRAG RULE POL-ATO-01 -->
-            <div class="term-tab-pane" id="termPane1_1">
-              <div class="gsql-code-box"><span class="cm">/* GraphRAG Dynamic Compliance Policy */</span>
-<span class="kw">RULE</span> POL-ATO-01 <span class="kw">EXTENDS</span> BaseAccountTakeoverPolicy {
-  <span class="kw">CONDITION</span>:
-    device.is_proxy == <span class="kw">true</span> &amp;&amp;
-    geo.anomaly_distance &gt; <span class="str">5000km</span> &amp;&amp;
-    evidence_sufficiency &lt; <span class="str">0.85</span>;
-  <span class="kw">PRESCRIPTION</span>:
-    <span class="fn">ARM_ACTION</span>(<span class="str">"CHALLENGE_SMS_OTP"</span>, priority=1);
-    <span class="fn">DEFER_ACTION</span>(<span class="str">"FREEZE_ACCOUNT"</span>, requires=<span class="str">"L2_HUMAN_APPROVAL"</span>);
-}</div>
-              <div class="term-footer-bar">
-                <span style="color:#94a3b8;">Policy Validated by GSQL Knowledge Graph</span>
-                <a href="/dashboard?tab=policies" class="btn-term-action" style="text-decoration:none;">RULE REPOSITORY →</a>
-              </div>
-            </div>
-
-            <!-- TAB 2: VECTOR CASE MEMORY MATCH -->
-            <div class="term-tab-pane" id="termPane1_2">
-              <div class="pipe-step-node" onclick="window.location.href='/dashboard?tab=case-memory'">
-                <span class="pipe-icon-badge green">C</span>
-                <div class="pipe-step-info">
-                  <div class="pipe-step-title"><span>Prior Precedent: CASE C-0872</span><span style="color:#34d399;">89% MATCH</span></div>
-                  <div class="pipe-step-desc">Identical Nigerian VPN proxy routing to NeoBank crypto off-ramp resolved in May.</div>
-                </div>
-              </div>
-              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px; font-size:10.5px; color:#94a3b8; margin-top:8px;">
-                <strong style="color:#ffffff;">Learned Mitigation:</strong> Customer responded to Step-Up 2FA denial within 4 minutes, confirming fraudulent intrusion without operational ticket overhead.
-              </div>
-              <div class="term-footer-bar">
-                <span style="color:#94a3b8;">Vector Similarity: Cosine 0.892</span>
-                <a href="/dashboard?tab=case-memory" class="btn-term-action" style="text-decoration:none;">OPEN CASE C-0872 →</a>
-              </div>
-            </div>
-
-          </div>
+        <!-- Action CTAs -->
+        <div class="cta-row">
+          <a class="pill" href="/dashboard?tab=workspace">Inspect Next Best Action →</a>
+          <a class="btn-secondary" href="/dashboard?tab=policies">View Policy Matrix</a>
+          <button class="btn-secondary" onclick="scrollToHop(2)">Hop 03 ↓</button>
         </div>
 
       </div>
@@ -1440,130 +1190,57 @@
     <section class="panel" data-panel="2">
       <div class="panel-editorial-card">
         
-        <!-- LEFT COLUMN: EDITORIAL NARRATIVE -->
-        <div class="editorial-narrative">
-          <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            <span>HOP 03 • GOVERNED EXECUTION &amp; AUDIT</span>
-          </div>
-          
-          <h1 class="hero-heading" id="heroHeading2" onmouseenter="scrambleElementText(this, 'AUTONOMOUS SPEED.\nHUMAN AUTHORITY.')">
-            AUTONOMOUS SPEED.<br/>
-            <span class="hero-gradient-text" data-scramble="HUMAN AUTHORITY.">HUMAN AUTHORITY.</span>
-          </h1>
-          
-          <p class="hero-subtext">
-            Every high-impact asset freeze (<span class="graph-entity-chip alert-chip" data-id="freeze" onmouseenter="showEntityPreview(this, 'freeze', event)" onmouseleave="hideEntityPreview()">$10k+ threshold</span>) routes cleanly to Senior Investigators with cryptographic audit trails, immutable ledger hashes <span class="graph-entity-chip" data-id="hash" onmouseenter="showEntityPreview(this, 'hash', event)" onmouseleave="hideEntityPreview()">0x9c48...38fa</span>, and instant case memory commits.
-          </p>
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          <span>HOP 03 • GOVERNED EXECUTION &amp; AUDIT</span>
+        </div>
+        
+        <h1 class="hero-heading" id="heroHeading2" onmouseenter="scrambleElementText(this, 'AUTONOMOUS SPEED.\nHUMAN AUTHORITY.')">
+          AUTONOMOUS SPEED.<br/>
+          <span class="hero-gradient-text" data-scramble="HUMAN AUTHORITY.">HUMAN AUTHORITY.</span>
+        </h1>
+        
+        <p class="hero-subtext">
+          Every high-impact asset freeze (<span class="graph-entity-chip alert-chip" data-id="freeze" onmouseenter="showEntityPreview(this, 'freeze', event)" onmouseleave="hideEntityPreview()">$10k+ threshold</span>) routes cleanly to Senior Investigators with cryptographic audit trails, immutable ledger hashes <span class="graph-entity-chip" data-id="hash" onmouseenter="showEntityPreview(this, 'hash', event)" onmouseleave="hideEntityPreview()">0x9c48...38fa</span>, and instant case memory commits.
+        </p>
 
-          <!-- Interactive Selector -->
-          <div class="hop-scrubber">
-            <button class="scrub-pill active" id="scrub2_0" onclick="selectHopStep(2, 0)">
-              <span class="scrub-dot"></span>
-              <span>FinCEN SAR Narrative</span>
-            </button>
-            <button class="scrub-pill" id="scrub2_1" onclick="selectHopStep(2, 1)">
-              <span class="scrub-dot"></span>
-              <span>Dual-Key Auth</span>
-            </button>
-            <button class="scrub-pill" id="scrub2_2" onclick="selectHopStep(2, 2)">
-              <span class="scrub-dot"></span>
-              <span>Audit Proof</span>
-            </button>
-          </div>
+        <!-- Interactive Selector -->
+        <div class="hop-scrubber">
+          <button class="scrub-pill active" id="scrub2_0" onclick="selectHopStep(2, 0)">
+            <span class="scrub-dot"></span>
+            <span>FinCEN SAR Narrative</span>
+          </button>
+          <button class="scrub-pill" id="scrub2_1" onclick="selectHopStep(2, 1)">
+            <span class="scrub-dot"></span>
+            <span>Dual-Key Auth</span>
+          </button>
+          <button class="scrub-pill" id="scrub2_2" onclick="selectHopStep(2, 2)">
+            <span class="scrub-dot"></span>
+            <span>Audit Proof</span>
+          </button>
+        </div>
 
-          <!-- Metric Strip -->
-          <div class="metric-strip">
-            <div class="metric-card">
-              <div class="metric-val highlight">84.2%</div>
-              <div class="metric-lbl">Auto Mitigation</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-val">3.8 min</div>
-              <div class="metric-lbl">Mean Triage Duration</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-val">0x9c48...38fa</div>
-              <div class="metric-lbl">Audit Proof Hash</div>
-            </div>
+        <!-- Metric Strip -->
+        <div class="metric-strip">
+          <div class="metric-card">
+            <div class="metric-val highlight">84.2%</div>
+            <div class="metric-lbl">Auto Mitigation</div>
           </div>
-
-          <!-- Action CTAs -->
-          <div class="cta-row">
-            <a class="pill" href="/dashboard">Enter Live Cockpit →</a>
-            <a class="btn-secondary" href="/login">Analyst Sign In →</a>
-            <button class="btn-secondary" onclick="scrollToHop(0)">Return to Hop 01 ↑</button>
+          <div class="metric-card">
+            <div class="metric-val">3.8 min</div>
+            <div class="metric-lbl">Mean Triage Duration</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val">0x9c48...38fa</div>
+            <div class="metric-lbl">Audit Proof Hash</div>
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: INTERACTIVE FINCEN SAR & AUDIT CONSOLE -->
-        <div class="editorial-terminal">
-          <div class="terminal-header">
-            <div class="term-dots">
-              <span class="term-dot r"></span>
-              <span class="term-dot y"></span>
-              <span class="term-dot g"></span>
-            </div>
-            <div class="term-tabs">
-              <button class="term-tab active" id="termTab2_0" onclick="switchTermTab(2, 0)">📄 FinCEN SAR</button>
-              <button class="term-tab" id="termTab2_1" onclick="switchTermTab(2, 1)">🔑 Dual-Key Gate</button>
-              <button class="term-tab" id="termTab2_2" onclick="switchTermTab(2, 2)">📜 Immutable Proof</button>
-            </div>
-          </div>
-
-          <div class="term-body">
-            <!-- TAB 0: FINCEN SAR NARRATIVE -->
-            <div class="term-tab-pane active" id="termPane2_0">
-              <div style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; font-size:10.5px; line-height:1.6; color:#e2e8f0; max-height:165px; overflow-y:auto;">
-                <strong style="color:#ff8533;">SUSPICIOUS ACTIVITY REPORT (SAR) — FinCEN FORM 111</strong><br/>
-                <span style="color:#64748b;">Subject: Marcus Vance (CUST_8291) | Wire $4,850.00 USD</span><br/>
-                On 2026-09-24, TigerGraph multi-hop engine detected an unauthorized login to Marcus Vance's account from proxy device DEV_293 (iPhone 15 Pro, IP 197.210.64.12, Lagos). Within 38ms, an outbound wire was intercepted destined for syndicate mule node ACCT_4421. Step-Up challenge deployed under Policy POL-ATO-01. Customer denial confirmed account takeover intrusion.
-              </div>
-              <div class="term-footer-bar">
-                <span style="color:#10b981;">✓ Synthesized in 38ms • AML Compliant</span>
-                <a href="/dashboard?tab=investigate" class="btn-term-action" style="text-decoration:none;">EXPORT SAR PDF</a>
-              </div>
-            </div>
-
-            <!-- TAB 1: DUAL-KEY AUTHORIZATION -->
-            <div class="term-tab-pane" id="termPane2_1">
-              <div class="pipe-step-node" style="border-color:#10b981; background:rgba(16,185,129,0.06);">
-                <span class="pipe-icon-badge green">✓</span>
-                <div class="pipe-step-info">
-                  <div class="pipe-step-title"><span>Elena Vance (Lead Auditor)</span><span style="color:#34d399;">SIGNED</span></div>
-                  <div class="pipe-step-desc">Passkey authorized via WebAuthn FIDO2 token at 11:51:44 UTC</div>
-                </div>
-              </div>
-              <div class="pipe-step-node" style="border-color:#38bdf8; background:rgba(56,189,248,0.06);">
-                <span class="pipe-icon-badge blue">●</span>
-                <div class="pipe-step-info">
-                  <div class="pipe-step-title"><span>Marcus Vance (Cardholder)</span><span style="color:#38bdf8;">2FA REJECTED</span></div>
-                  <div class="pipe-step-desc">Customer flagged push challenge as "NOT AUTHORIZED" in mobile banking app</div>
-                </div>
-              </div>
-              <div class="term-footer-bar">
-                <span style="color:#94a3b8;">Dual Key Condition Satisfied</span>
-                <button class="btn-term-action" onclick="alert('Step-Up Freeze Executed under Dual Authority!')">CONFIRM AUDIT</button>
-              </div>
-            </div>
-
-            <!-- TAB 2: IMMUTABLE AUDIT PROOF -->
-            <div class="term-tab-pane" id="termPane2_2">
-              <div class="gsql-code-box"><span class="cm">// Cryptographic Evidence Commitment</span>
-{
-  <span class="str">"case_id"</span>: <span class="str">"C-1024"</span>,
-  <span class="str">"graph_vertex"</span>: <span class="str">"TG-CASE-C1024"</span>,
-  <span class="str">"evidence_sha256"</span>: <span class="str">"0x9c48b2e1f40838fa6127"</span>,
-  <span class="str">"governance_route"</span>: <span class="str">"HITL_DUAL_KEY"</span>,
-  <span class="str">"mitigation"</span>: <span class="str">"CHALLENGE_STEP_UP_PASS"</span>
-}</div>
-              <div class="term-footer-bar">
-                <span style="color:#94a3b8;">Ingested into TigerGraph Ledger</span>
-                <a href="/dashboard?tab=workspace" class="btn-term-action" style="text-decoration:none;">VERIFY PROOF →</a>
-              </div>
-            </div>
-
-          </div>
+        <!-- Action CTAs -->
+        <div class="cta-row">
+          <a class="pill" href="/dashboard">Enter Live Cockpit →</a>
+          <a class="btn-secondary" href="/login">Analyst Sign In →</a>
+          <button class="btn-secondary" onclick="scrollToHop(0)">Return to Hop 01 ↑</button>
         </div>
 
       </div>

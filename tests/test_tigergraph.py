@@ -8,7 +8,7 @@ from tigergraph.tg_client import TigerGraphClient
 from mcp.tg_mcp_server import TigerGraphMCPServer
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def tg_client():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     data_dir = os.path.join(base_dir, "data")

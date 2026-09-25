@@ -1854,15 +1854,258 @@ h1 { font-family: var(--font-heading); font-size: 32px; font-weight: 700; letter
 .briefing-content ul { padding-left: 20px; margin-top: 6px; }
 .briefing-content li { margin-bottom: 6px; }
 
-/* Responsive adjustments */
-@media (max-width: 1200px) {
+/* Comprehensive Mobile, Tablet & Laptop Responsive Design System */
+@media (max-width: 1280px) {
   .dash-main-grid { grid-template-columns: 1fr; }
   .dash-kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .investigation-split-grid, .workspace-main-split, .workspace-bottom-split, .explorer-workbench-grid { grid-template-columns: 1fr; }
   .vector-cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .telemetry-grid { grid-template-columns: repeat(2, 1fr); }
+  .memory-cards-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 860px) {
-  .app-sidebar { display: none; }
+
+@media (max-width: 960px) {
   .header-center { display: none; }
-  .dashboard-hero-row { flex-direction: column; }
+  .status-chip.status-engine { display: none; }
+  
+  .app-container {
+    flex-direction: column;
+    padding-top: 64px;
+  }
+  
+  .app-sidebar {
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 64px;
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 12px;
+    gap: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--border-rule);
+    z-index: 95;
+    background: rgba(245, 243, 239, 0.98);
+    scrollbar-width: none;
+  }
+  .app-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .sidebar-section-title,
+  .sidebar-stack-card {
+    display: none;
+  }
+  
+  .sidebar-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    width: max-content;
+    min-width: 100%;
+    align-items: center;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+  }
+  
+  .nav-item {
+    white-space: nowrap;
+    height: 36px;
+    padding: 0 14px;
+    font-size: 12.5px;
+    flex-shrink: 0;
+  }
+  
+  .view-inner-pad {
+    padding: 20px 16px 48px;
+  }
+  
+  .dashboard-hero-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .hero-greeting {
+    font-size: clamp(22px, 5.5vw, 30px);
+  }
+  
+  .hero-right-actions {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  
+  .hero-right-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dashboard-telemetry-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .telem-pill-swarm {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .priority-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .priority-queue-table {
+    min-width: 600px;
+    width: 100%;
+  }
+
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .cases-table {
+    min-width: 640px;
+    width: 100%;
+  }
+  
+  .hero-action-pills {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  
+  .workbench-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .workbench-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .sar-action-ribbon {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }
+
+@media (max-width: 640px) {
+  .app-header {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .brand-logo-svg svg {
+    width: 120px;
+    height: 30px;
+  }
+  
+  .brand-cluster {
+    gap: 6px;
+  }
+  
+  .brand-engine-tag {
+    display: none;
+  }
+  
+  .status-chip {
+    display: none;
+  }
+  
+  .header-btn span {
+    display: none;
+  }
+  .header-btn {
+    padding: 0 10px;
+  }
+
+  .header-right {
+    gap: 6px;
+  }
+  
+  .user-profile-badge {
+    padding-left: 2px;
+    border-left: none;
+    gap: 4px;
+  }
+  
+  .user-meta {
+    display: none;
+  }
+  
+  .user-avatar img {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .view-inner-pad {
+    padding: 14px 12px 36px;
+  }
+  
+  .kpis-grid,
+  .dash-kpi-grid,
+  .vector-cards-grid,
+  .memory-cards-grid,
+  .telemetry-grid,
+  .policies-grid,
+  .alerts-feed-grid,
+  .entity-pair-grid,
+  .context-cards-row,
+  .summary-pills-row,
+  .sar-meta-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .hero-stat-card {
+    padding: 14px;
+  }
+
+  .velocity-stats-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .subgraph-banner-badges {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .subgraph-hud-overlay {
+    position: static;
+    margin-top: 12px;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .subgraph-explorer-canvas-container {
+    height: 320px;
+  }
+  
+  .notif-dropdown {
+    width: calc(100vw - 20px);
+    right: -60px;
+  }
+  
+  .narrative-dialog,
+  .briefing-dialog {
+    width: calc(100vw - 24px);
+    max-width: 95%;
+    padding: 16px;
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+}
+
