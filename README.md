@@ -12,42 +12,7 @@
 
 ## Architecture Overview
 
-```
-                      +---------------------------------------+
-                      |           Alert Triggers              |
-                      | (Risk Score, Customer Report, Analyst)|
-                      +-------------------+-------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                           TigerGraph Sentinel Core Agent                          |
-|                                                                                   |
-|  +------------------------+  +--------------------------+  +-------------------+  |
-|  |  TigerGraph MCP Server |  | GraphRAG Reasoning Engine|  | Dynamic Memory    |  |
-|  |  - card_window         |  | - Entity graph subgraphs |  | - 5,565 Precedents|  |
-|  |  - device_neighbors    |  | - Fraud Policy (R1-R10)  |  | - Writeback Edge  |  |
-|  |  - shared_entity_ring  |  | - FinCEN / FATF typologies| |   (INVOLVES/CASE) |  |
-|  +------------------------+  +--------------------------+  +-------------------+  |
-|                                         |                                         |
-|                                         v                                         |
-|  +-----------------------------------------------------------------------------+  |
-|  |                         Stateful Case Progression                           |  |
-|  |  1. Hypothesis & Pattern Recognition (Testing, CNP, ATO, Syndicate Ring)    |  |
-|  |  2. Initial Next-Best Action & Approval Routing (auto / L1 / L2)             |  |
-|  |  3. Uncertainty Calibration & Controlled Evidence Request                   |  |
-|  |  4. Evidence Assimilation & Final Defensible Next-Best Action               |  |
-|  |  5. Regulatory SAR Generation (FinCEN 6-12 Sentence Narrative)             |  |
-|  +-----------------------------------------------------------------------------+  |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                               Deliverables & UI                                   |
-|  - 20 Benchmark Case Answers (cases/HHG-001.json to HHG-020.json)                 |
-|  - Modern Dark-Themed Web Analyst Dashboard with Force-Directed Canvas Graph     |
-|  - REST API & TigerGraph Savanna Cloud Integration Scripts                       |
-+-----------------------------------------------------------------------------------+
-```
+![TigerGraph Sentinel Architecture](./architecture.png)
 
 ---
 
